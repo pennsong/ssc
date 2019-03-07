@@ -5,8 +5,6 @@ import com.google.gson.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Type;
 
@@ -54,7 +52,7 @@ public class SscApplication {
                     return gson.fromJson(jsonObject, CompoundQuestion.class);
                 }
 
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "错误的问题类型!");
+                throw new ValidateException("错误的问题类型!");
             }
         };
     }
