@@ -18,11 +18,13 @@ public class CompoundQuestion extends Question {
     @Expose
     private int minNum = 1;
 
+    @Getter
     @Setter
     @Expose
     private int maxNum = 1;
 
     @OneToMany(mappedBy = "compoundQuestion", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @Getter
     @Expose
     private List<Question> questions = new ArrayList<>();
 
@@ -39,6 +41,11 @@ public class CompoundQuestion extends Question {
             this.questions.add(item);
             item.setCompoundQuestion(this);
         }
+    }
+
+    public CompoundQuestion(String titleDefaultText, Category category, String fitRule, Question... questions) {
+        this(titleDefaultText, category, questions);
+        setFitRule(fitRule);
     }
 
     @Override

@@ -47,8 +47,8 @@ public class TestController {
         Question cq2 = new JudgementQuestion("复合判断1");
         Question cq3 = new ChoiceQuestion("复合选择1", "复合选择1选项1", "复合选择1选项2");
 
-        CompoundQuestion q1 = new CompoundQuestion("复合题1", category, cq1, cq2, cq3);
-        q1.setMaxNum(2);
+        CompoundQuestion q1 = new CompoundQuestion("复合题1", category, "gender == T(com.channelwin.ssc.Gender).MALE", cq1, cq2, cq3);
+        q1.setMaxNum(5);
         q1.setMinNum(3);
 
         q1 = compoundQuestionRepository.save(q1);

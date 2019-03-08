@@ -1,24 +1,25 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
 
 import javax.persistence.*;
-import javax.validation.constraints.Min;
-import java.util.Map;
 
 @Entity
 public class Category extends Validatable {
     @Id
     @GeneratedValue
     @Expose
+    @Getter
     private int id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @Expose
+    @Getter
     private MultiLang title;
 
     @Expose
+    @Getter
     private float seq;
 
     private Category() {

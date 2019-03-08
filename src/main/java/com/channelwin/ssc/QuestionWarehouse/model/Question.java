@@ -1,6 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -11,27 +12,35 @@ public class Question extends Validatable {
     @Id
     @GeneratedValue
     @Expose
+    @Getter
     private int id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @Expose
+    @Getter
     private MultiLang title;
 
     @Expose
+    @Getter
     private int seq;
 
     @Expose
+    @Getter
     private QuestionType questionType;
 
     @ManyToOne
     @Expose
+    @Getter
     private Category category;
 
     private boolean compoundItem;
 
+    @Getter
+    @Setter
     private String fitRule = "true";
 
     @Expose
+    @Getter
     private String validateRule;
 
     @ManyToOne

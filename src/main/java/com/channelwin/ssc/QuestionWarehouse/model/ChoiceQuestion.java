@@ -1,6 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.google.gson.annotations.Expose;
+import lombok.Getter;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -11,9 +12,11 @@ import java.util.List;
 public class ChoiceQuestion extends Question {
     @ElementCollection
     @Expose
+    @Getter
     private List<Option> options = new ArrayList();
 
     @Expose
+    @Getter
     private boolean multiple;
 
     private ChoiceQuestion() {
