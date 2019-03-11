@@ -3,8 +3,8 @@ package com.channelwin.ssc.QuestionWarehouse;
 import com.channelwin.ssc.EntryMaterialCollecting.EmployeeFixItem;
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
-import com.channelwin.ssc.QuestionWarehouse.repository.CompoundQuestionRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
+import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ public class MainControllerTest {
     private CategoryRepository categoryRepository;
 
     @MockBean
-    private CompoundQuestionRepository compoundQuestionRepository;
+    private QuestionRepository questionRepository;
 
     // 目录
     Category category1 = new Category("目录1", 0);
@@ -68,13 +68,13 @@ public class MainControllerTest {
     @Test
     public void getEntryPaper() throws Exception {
         List questionList = Arrays.asList(
-//                completionQuestion1,
-//                judgementQuestion1,
-//                choiceQuestion1,
+                completionQuestion1,
+                judgementQuestion1,
+                choiceQuestion1,
                 compoundQuestion1
         );
 
-        when(compoundQuestionRepository.findAll()).thenReturn(questionList);
+        when(questionRepository.findAll()).thenReturn(questionList);
 
         EmployeeFixItem employeeFixItem = new EmployeeFixItem("idCardNo1", "姓名1", MALE);
 

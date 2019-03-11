@@ -1,7 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.google.gson.annotations.Expose;
-import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -9,17 +8,12 @@ import javax.persistence.*;
 public class Category extends Validatable {
     @Id
     @GeneratedValue
-    @Expose
-    @Getter
     private int id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @Expose
-    @Getter
     private MultiLang title;
 
-    @Expose
-    @Getter
+    @Setter
     private float seq;
 
     private Category() {
@@ -37,6 +31,10 @@ public class Category extends Validatable {
             String[] strings = item.split(":");
             this.title.setText(Lang.valueOf(strings[0]), strings[1]);
         }
+    }
+
+    public void setDefaultText(String defaultText) {
+        this.title.setDefaultText(defaultText);
     }
 
     @PrePersist

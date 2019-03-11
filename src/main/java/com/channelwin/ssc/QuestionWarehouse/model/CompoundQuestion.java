@@ -1,7 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.ValidateException;
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,17 +14,13 @@ import java.util.List;
 public class CompoundQuestion extends Question {
     @Getter
     @Setter
-    @Expose
     private int minNum = 1;
 
     @Getter
     @Setter
-    @Expose
     private int maxNum = 1;
 
     @OneToMany(mappedBy = "compoundQuestion", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @Getter
-    @Expose
     private List<Question> questions = new ArrayList<>();
 
     private CompoundQuestion() {

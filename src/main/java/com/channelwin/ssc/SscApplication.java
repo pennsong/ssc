@@ -1,12 +1,13 @@
 package com.channelwin.ssc;
 
-import com.channelwin.ssc.QuestionWarehouse.model.*;
-import com.google.gson.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import java.lang.reflect.Type;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 @SpringBootApplication
 public class SscApplication {
@@ -16,53 +17,17 @@ public class SscApplication {
     }
 
     @Bean
-    public Gson getQuestionGsonSerializer() {
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .setPrettyPrinting()
-                .create();
-
-        return gson;
-    }
-
-    @Bean
-    public JsonDeserializer<Question> getQuestionJsonDeserializer() {
-        return new JsonDeserializer<Question>() {
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Question.class, this)
-                    .create();
+    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
+        return new Jackson2ObjectMapperBuilder() {
 
             @Override
-            public Question deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                JsonObject jsonObject = json.getAsJsonObject();
-
-                if (jsonObject.get("questionType").getAsString().equals(QuestionType.completion.toString())) {
-                    return gson.fromJson(jsonObject, CompletionQuestion.class);
-                }
-
-                if (jsonObject.get("questionType").getAsString().equals(QuestionType.judgement.toString())) {
-                    return gson.fromJson(jsonObject, JudgementQuestion.class);
-                }
-
-                if (jsonObject.get("questionType").getAsString().equals(QuestionType.choice.toString())) {
-                    return gson.fromJson(jsonObject, ChoiceQuestion.class);
-                }
-
-                if (jsonObject.get("questionType").getAsString().equals(QuestionType.compound.toString())) {
-                    return gson.fromJson(jsonObject, CompoundQuestion.class);
-                }
-
-                throw new ValidateException("错误的问题类型!");
+            public void configure(ObjectMapper objectMapper) {
+                super.configure(objectMapper);
+                objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+                objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
             }
+
         };
-    }
 
-    @Bean
-    public Gson getQuestionGsonDeserializer(JsonDeserializer<Question> deserializer) {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(Question.class, deserializer)
-                .create();
-
-        return gson;
     }
 }

@@ -2,13 +2,10 @@ package com.channelwin.ssc.QuestionWarehouse.controller;
 
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
-import com.channelwin.ssc.QuestionWarehouse.repository.CompoundQuestionRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
-import com.google.gson.Gson;
-import com.google.gson.JsonDeserializer;
+import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,22 +21,10 @@ public class TestController {
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private CompoundQuestionRepository compoundQuestionRepository;
-
-    @Autowired
-    private JsonDeserializer<Question> deserializer;
-
-    @Qualifier("getQuestionGsonSerializer")
-    @Autowired
-    private Gson questionGsonSerializer;
-
-    @Qualifier("getQuestionGsonDeserializer")
-    @Autowired
-    private Gson questionGsonDeserializer;
-
+    private QuestionRepository questionRepository;
 
     @RequestMapping("/test2")
-    public String test2() throws Exception {
+    public CompoundQuestion test2() throws Exception {
         Category category = new Category("目录1", 0, "PY:目录1 PY", "EN: 目录1 EN");
         category = categoryRepository.save(category);
 
@@ -51,14 +36,9 @@ public class TestController {
         q1.setMaxNum(5);
         q1.setMinNum(3);
 
-        q1 = compoundQuestionRepository.save(q1);
+        q1 = questionRepository.save(q1);
 
-        String jsonStr = questionGsonSerializer.toJson(q1);
-        log.info(jsonStr);
-
-        Question result = questionGsonDeserializer.fromJson(jsonStr, Question.class);
-
-        return "ok";
+        return q1;
     }
 
     @RequestMapping("/test1")

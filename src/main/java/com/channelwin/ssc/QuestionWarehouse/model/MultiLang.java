@@ -1,7 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.google.gson.annotations.Expose;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -14,17 +14,13 @@ import java.util.Map;
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue
-    @Expose
-    @Getter
     private int id;
 
-    @Expose
     @Getter
+    @Setter
     private String defaultText;
 
     @ElementCollection
-    @Expose
-    @Getter
     private Map<Lang, String> translation = new HashMap<>();
 
     private MultiLang() {
