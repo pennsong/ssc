@@ -16,7 +16,7 @@ public class Question extends Validatable {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private MultiLang title;
 
-    private int seq;
+    private double seq;
 
     private QuestionType questionType;
 

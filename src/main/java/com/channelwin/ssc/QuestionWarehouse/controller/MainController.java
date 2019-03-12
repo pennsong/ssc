@@ -6,7 +6,13 @@ import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.channelwin.ssc.ValidateException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
@@ -15,8 +21,8 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -43,45 +49,84 @@ public class MainController {
 
     // 目录
     // 添加目录
-    @RequestMapping(path = "/category/add", method = RequestMethod.POST)
-    public void addCategory(@RequestBody @Valid CategoryEditDTO dto, BindingResult bindingResult) {
+    @RequestMapping(path = "/category", method = RequestMethod.POST)
+    public void addCategory(@RequestBody @Valid CategoryDTO dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.getAllErrors());
+            throw new ValidateException(bindingResult.toString());
         }
-        log.info(bindingResult.toString());
+
         Category category = new Category(dto.defaultText, dto.seq);
         categoryRepository.save(category);
     }
 
     // 删除目录
-    @RequestMapping(path = "/category/delete/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(path = "/category/{id}", method = RequestMethod.DELETE)
     public void deleteCategory(@PathVariable int id) {
         categoryRepository.deleteById(id);
     }
 
     // 编辑目录
-    @RequestMapping(path = "/category/delete/{id}", method = RequestMethod.PUT)
-    public void editCategory(HttpServletRequest request, @PathVariable int id) {
-        Category category =  categoryRepository.findById(id).get();
-//        category.setDefaultText(defaultText);
-//        category.setSeq(seq);
+    @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
+    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryDTO dto) {
+        Category category = categoryRepository.findById(id).get();
+        category.setDefaultText(dto.defaultText);
+        category.setSeq(dto.seq);
 
         categoryRepository.save(category);
     }
-    // todo 获取目录
+
+    // 获取单个目录
+    @RequestMapping(path = "/category/{id}")
+    public Category getCategory(@PathVariable int id) {
+        Category category = categoryRepository.findById(id).get();
+
+        return category;
+    }
+
+    // 获取多个目录
+    @RequestMapping(path = "/category")
+    public Iterable<Category> getCategories() {
+        return categoryRepository.findAll();
+    }
     // end 目录
 
     // 题目
-    // todo 添加题目
-    // todo 删除题目
-    // todo 编辑题目
-    // todo 获取题目
+    // 添加题目
+    @RequestMapping(path = "/question", method = RequestMethod.POST)
+    public void addQuestion(@Valid @RequestBody QuestionDto questionDto) {
+
+    }
+
+    // 删除题目
+    @RequestMapping(path = "/question/{id}", method = RequestMethod.DELETE)
+    public void deleteQuestion(int id) {
+
+    }
+    // 编辑题目
+    @RequestMapping(path = "/question", method = RequestMethod.PUT)
+    public void editQuestion(@Valid @RequestBody QuestionDto questionDto) {
+
+    }
+    // 获取单个题目
+    @RequestMapping(path = "/question/{id}", method = RequestMethod.GET)
+    public Question getQuestion(@PathVariable int id) {
+        Question question = questionRepository.findById(id).get();
+
+        return question;
+    }
+
+    // 获取多个题目
+    @RequestMapping(path = "/question", method = RequestMethod.GET)
+    public Page<Question> getQuestions(@RequestParam int pageNum, @RequestParam int pageSize) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        return  questionRepository.findAll(pageable);
+    }
     // end 题目
 
 
-    // todo 获取入职试卷
+    // 获取入职试卷
     @RequestMapping(path = "/getEntryPaper", method = RequestMethod.GET)
-    @ResponseBody
     public List<Question> getEntryPaper() {
         EmployeeFixItem employeeFixItem = new EmployeeFixItem("idCardNo1", "姓名1", MALE);
         List<Question> list = StreamSupport.stream(questionRepository.findAll().spliterator(), false)
@@ -94,12 +139,6 @@ public class MainController {
                 .collect(Collectors.toList());
 
         return list;
-    }
-
-    @RequestMapping(path = "/getEntryPaper2", method = RequestMethod.GET)
-    @ResponseBody
-    public Iterable<Question> getEntryPaper2() {
-        return questionRepository.findAll();
     }
 
     @RequestMapping("/initData")
@@ -124,7 +163,7 @@ public class MainController {
         CompoundQuestion compoundQuestion1 = new CompoundQuestion(
                 "复合题!",
                 category1,
-            "gender == T(com.channelwin.ssc.Gender).MALE",
+                "gender == T(com.channelwin.ssc.Gender).MALE",
                 compoundCompletionQuestion1,
                 compoundJudgementQuestion1,
                 compoundChoiceQuestion1
@@ -133,5 +172,23 @@ public class MainController {
         questionRepository.save(compoundQuestion1);
 
         return "initData OK";
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CategoryDTO {
+        @NotNull
+        String defaultText;
+
+        @NotNull
+        Double seq;
+    }
+
+    @Data
+    @NoArgsConstructor
+//    @AllArgsConstructor
+    public static class QuestionDto {
+
     }
 }

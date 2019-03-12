@@ -14,17 +14,17 @@ public class Category extends Validatable {
     private MultiLang title;
 
     @Setter
-    private float seq;
+    private double seq;
 
     private Category() {
     }
 
-    public Category(String titleDefaultText, float seq){
+    public Category(String titleDefaultText, double seq){
         this.title = new MultiLang(titleDefaultText);
         this.seq = seq;
     }
 
-    public Category(String titleDefaultText, float seq, String... langs){
+    public Category(String titleDefaultText, double seq, String... langs){
         this.title = new MultiLang(titleDefaultText);
         this.seq = seq;
         for (String item: langs) {

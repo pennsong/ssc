@@ -16,7 +16,7 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ErrorResponse handleBadRequest(HttpServletRequest req, Exception ex) {
-        log.info("test");
+        log.info(ex.toString());
         for (StackTraceElement item: ex.getStackTrace()) {
             log.info("[" + item.getClassName() + ": " + item.getLineNumber() + "]: " + item.toString());
         }
