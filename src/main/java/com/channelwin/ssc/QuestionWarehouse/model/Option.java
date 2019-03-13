@@ -1,24 +1,29 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Embeddable
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Option extends Validatable {
-    private int key;
+    @NotNull
+    @Min(0)
+    private Integer key;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @NotNull
     private MultiLang value;
 
-    private int score;
-
-    private Option() {
-    }
-
-    public Option(int key, String valueDefaultText) {
-        this.key = key;
-        this.score = 0;
-        this.value = new MultiLang(valueDefaultText);
-    }
+    @NotNull
+    @Setter
+    private Integer score;
 }

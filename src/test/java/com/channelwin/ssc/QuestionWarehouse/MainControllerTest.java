@@ -1,9 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse;
 
 import com.channelwin.ssc.QuestionWarehouse.controller.MainController;
-import com.channelwin.ssc.QuestionWarehouse.model.Category;
-import com.channelwin.ssc.QuestionWarehouse.model.Question;
-import com.channelwin.ssc.QuestionWarehouse.model.QuestionType;
+import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -181,84 +179,108 @@ public class MainControllerTest {
         Question question = questionRepository.findByTitleDefaultText("填空题t1").get(0);
 
         String target = "{\n" +
-                "    \"questionType\": \"completion\",\n" +
-                "    \"titleDefaultText\": \"选择题t1\",\n" +
-                "    \"seq\": 1.1,\n" +
-                "    \"categoryId\": 1,\n" +
-                "    \"fitRule\": \"1 == 1\",\n" +
-                "    \"validateRule\": \"2 == 2\",\n" +
+                "  \"title\" : {\n" +
+                "    \"defaultText\" : \"填空题t1\"\n" +
+                "  },\n" +
+                "  \"seq\" : 1.1,\n" +
+                "  \"questionType\" : \"completion\",\n" +
+                "  \"category\" : {\n" +
+                "    \"id\" : 1\n" +
+                "  },\n" +
+                "  \"compoundItem\" : false,\n" +
+                "  \"fitRule\" : \"1 == 1\",\n" +
+                "  \"validateRule\" : \"2 == 1\"\n" +
                 "}";
 
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
     }
 
-//    @Test
-//    public void addQuestion2() throws Exception {
-//        MainController.QuestionDto questionDto = new MainController.QuestionDto(
-//                QuestionType.completion,
-//                "选择题t1",
-//                1.1,
-//                1,
-//                "1 == 1",
-//                "2 == 1"
-//        );
-//
-//        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
-//                .content(objectMapper.writeValueAsString(questionDto))
-//                .contentType(MediaType.APPLICATION_JSON)
-//        ).andReturn();
-//
-//        Question question = questionRepository.findByTitleDefaultText("复合题t1").get(0);
-//
-//        String target = "{\n" +
-//                "    \"questionType\": \"compound\",\n" +
-//                "    \"titleDefaultText\": \"复合题t1\",\n" +
-//                "    \"seq\": 1.1,\n" +
-//                "    \"categoryId\": 1,\n" +
-//                "    \"fitRule\": \"1 == 1\",\n" +
-//                "    \"validateRule\": \"2 == 2\",\n" +
-//                "    \"minNum\": 1,\n" +
-//                "    \"maxNum\": 5,\n" +
-//                "    \"questions\": [\n" +
-//                "        {\n" +
-//                "            \"questionType\": \"completion\",\n" +
-//                "            \"titleDefaultText\": \"子填空题t1_1\",\n" +
-//                "            \"seq\": 1.1,\n" +
-//                "            \"validateRule\": \"2 == 2\"\n" +
-//                "        },\n" +
-//                "        {\n" +
-//                "            \"questionType\": \"judgement\",\n" +
-//                "            \"titleDefaultText\": \"子判断题t1_2\",\n" +
-//                "            \"seq\": 1.2,\n" +
-//                "            \"validateRule\": \"2 == 2\"\n" +
-//                "        },\n" +
-//                "        {\n" +
-//                "            \"questionType\": \"choice\",\n" +
-//                "            \"titleDefaultText\": \"子选择题t1_3\",\n" +
-//                "            \"seq\": 1.3,\n" +
-//                "            \"validateRule\": \"2 == 2\",\n" +
-//                "            \"options\": [\n" +
-//                "                {\n" +
-//                "                    \"key\": 1,\n" +
-//                "                    \"value\": {\n" +
-//                "                        \"defaultText\": \"子问题选项1\"\n" +
-//                "                    },\n" +
-//                "                    \"score\": 1\n" +
-//                "                },\n" +
-//                "                {\n" +
-//                "                    \"key\": 2,\n" +
-//                "                    \"value\": {\n" +
-//                "                        \"defaultText\": \"子问题选项2\"\n" +
-//                "                    },\n" +
-//                "                    \"score\": 2\n" +
-//                "                }\n" +
-//                "            ]\n" +
-//                "        }\n" +
-//                "    ]\n" +
-//                "}";
-//
-//        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
-//    }
+    @Test
+    public void addQuestion2() throws Exception {
+
+        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1, "2 == 2");
+        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, "2 == 2");
+        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1", "2 == 2", 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
+
+        MainController.QuestionDto questionDto = new MainController.QuestionDto(
+                "复合题t1",
+                1.1,
+                1,
+                "1 == 1",
+                "2 == 2",
+                1,
+                5,
+                completionQuestion1,
+                judgementQuestion1,
+                choiceQuestion1
+        );
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
+                .content(objectMapper.writeValueAsString(questionDto))
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn();
+
+        Question question = questionRepository.findByTitleDefaultText("复合题t1").get(0);
+
+        String target = "{\n" +
+                "    \"questionType\": \"compound\",\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"复合题t1\" \n" +
+                "    },\n" +
+                "    \"seq\": 1.1,\n" +
+                "    \"category\": {\n" +
+                "        \"id\": 1\n" +
+                "    },\n" +
+                "    \"fitRule\": \"1 == 1\",\n" +
+                "    \"validateRule\": \"2 == 2\",\n" +
+                "    \"minNum\": 1,\n" +
+                "    \"maxNum\": 5,\n" +
+                "    \"questions\": [\n" +
+                "        {\n" +
+                "            \"questionType\": \"completion\",\n" +
+                "            \"title\": {\n" +
+                "                \"defaultText\": \"子填空题t1\" \n" +
+                "            },\n" +
+                "            \"seq\": 1.1,\n" +
+                "            \"validateRule\": \"2 == 2\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"questionType\": \"judgement\",\n" +
+                "            \"title\": {\n" +
+                "                \"defaultText\": \"子判断题t1\" \n" +
+                "            },\n" +
+                "            \"seq\": 1.2,\n" +
+                "            \"validateRule\": \"2 == 2\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"questionType\": \"choice\",\n" +
+                "            \"title\": {\n" +
+                "                \"defaultText\": \"子选择题t1\" \n" +
+                "            },\n" +
+                "            \"seq\": 1.3,\n" +
+                "            \"validateRule\": \"2 == 2\",\n" +
+                "            \"options\": [\n" +
+                "                {\n" +
+                "                    \"key\": 0,\n" +
+                "                    \"value\": {\n" +
+                "                        \"defaultText\": \"子选择题t1_选项1\"\n" +
+                "                    },\n" +
+                "                    \"score\": 0\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"key\": 1,\n" +
+                "                    \"value\": {\n" +
+                "                        \"defaultText\": \"子选择题t1_选项2\"\n" +
+                "                    },\n" +
+                "                    \"score\": 0\n" +
+                "                }\n" +
+                "            ]\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
+    }
     // 删除题目
     // 编辑题目
     // 获取单个题目

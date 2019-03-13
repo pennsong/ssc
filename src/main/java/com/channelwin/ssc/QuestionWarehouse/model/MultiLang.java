@@ -1,34 +1,33 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
 
     @Getter
     @Setter
+    @NotNull
+    @Size(min = 1, max = 100)
     private String defaultText;
 
     @ElementCollection
+    @NotNull
     private Map<Lang, String> translation = new HashMap<>();
-
-    private MultiLang() {
-    }
-
-    public MultiLang(String defaultText) {
-        this.defaultText = defaultText;
-    }
 
     public void setText(Lang lang, String text) {
         translation.put(lang, text);

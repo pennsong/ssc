@@ -3,7 +3,6 @@ package com.channelwin.ssc.QuestionWarehouse.controller;
 import com.channelwin.ssc.EntryMaterialCollecting.EmployeeFixItem;
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
-import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.channelwin.ssc.ValidateException;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -36,16 +34,18 @@ import static com.channelwin.ssc.Gender.MALE;
 @RequestMapping("/questionWarehouse")
 @Transactional
 public class MainController {
-    private MultiLangRepository multiLangRepository;
+    private FactoryService factoryService;
 
     private CategoryRepository categoryRepository;
 
     private QuestionRepository questionRepository;
 
-    public MainController(MultiLangRepository multiLangRepository,
-                          CategoryRepository categoryRepository,
-                          QuestionRepository questionRepository
+    public MainController(
+            FactoryService factoryService,
+            CategoryRepository categoryRepository,
+            QuestionRepository questionRepository
     ) {
+        this.factoryService = factoryService;
         this.categoryRepository = categoryRepository;
         this.questionRepository = questionRepository;
     }
@@ -58,7 +58,7 @@ public class MainController {
             throw new ValidateException(bindingResult.toString());
         }
 
-        Category category = new Category(dto.defaultText, dto.seq);
+        Category category = FactoryService.createCategory(dto.defaultText, dto.seq);
         categoryRepository.save(category);
     }
 
@@ -101,9 +101,8 @@ public class MainController {
     public void addQuestion(@Valid @RequestBody QuestionDto questionDto) {
         questionDto.validate();
 
-        if (questionDto.questionType == QuestionType.completion) {
-//            CompletionQuestion completionQuestion = new CompletionQuestion();
-        }
+        Question question = factoryService.createQuestionFromQuestionDto(questionDto);
+        questionRepository.save(question);
     }
 
     // 删除题目
@@ -167,57 +166,6 @@ public class MainController {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class QuestionDto {
-
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class SubQuestionDto {
-            @NotNull
-            QuestionType questionType;
-
-            @NotNull
-            String titleDefaultText;
-
-            @NotNull
-            Double seq;
-
-            String validateRule;
-
-            List<Option> options = new ArrayList();
-
-            public SubQuestionDto(QuestionType questionType,
-                                  String titleDefaultText,
-                                  double seq,
-                                  String validateRule) {
-                this.questionType = questionType;
-                this.titleDefaultText = titleDefaultText;
-                this.seq = seq;
-                this.validateRule = validateRule;
-            }
-
-            public SubQuestionDto(String titleDefaultText,
-                                  double seq,
-                                  String validateRule,
-                                  String... options) {
-                this(QuestionType.choice, titleDefaultText, seq, validateRule);
-
-                for (String item :options) {
-                    String[] strings = item.split(":");
-                    this.options.add(new Option(Integer.parseInt(strings[0]), strings[1]));
-                }
-            }
-
-            public void validate() {
-                if (questionType.equals(QuestionType.choice)) {
-                    if (options.size() < 2) {
-                        throw new ValidateException("选择题的选项至少要有2项!");
-                    }
-                } else if (questionType.equals(QuestionType.compound)) {
-                    throw new ValidateException("子问题不能是复合题!");
-                }
-            }
-        }
-
         @NotNull
         QuestionType questionType;
 
@@ -227,75 +175,105 @@ public class MainController {
         @NotNull
         Double seq;
 
-        @NotNull
         Integer categoryId;
 
         String fitRule;
 
         String validateRule;
 
-        List<Option> options = new ArrayList();
+        String[] optionDefaultTexts;
 
-        int minNum;
+        Integer minNum;
 
-        int maxNum;
+        Integer maxNum;
 
-        private List<SubQuestionDto> questions = new ArrayList<>();
+        QuestionDto[] questionDtos;
 
+        // 填空, 判断题
         public QuestionDto(QuestionType questionType,
                            String titleDefaultText,
-                           double seq,
-                           int categoryId,
+                           Double seq,
+                           Integer categoryId,
                            String fitRule,
                            String validateRule) {
-
+            this.questionType = questionType;
+            this.titleDefaultText = titleDefaultText;
+            this.seq = seq;
+            this.categoryId = categoryId;
+            this.fitRule = fitRule;
+            this.validateRule = validateRule;
         }
 
+        // 选择题
         public QuestionDto(String titleDefaultText,
-                              double seq,
-                              int categoryId,
-                              String fitRule,
-                              String validateRule,
-                              String... options) {
-            this(QuestionType.choice, titleDefaultText, seq, categoryId, fitRule, validateRule);
-
-            for (String item :options) {
-                String[] strings = item.split(":");
-                this.options.add(new Option(Integer.parseInt(strings[0]), strings[1]));
-            }
-        }
-
-        public QuestionDto(String titleDefaultText,
-                           double seq,
-                           int categoryId,
+                           Double seq,
+                           Integer categoryId,
                            String fitRule,
                            String validateRule,
-                           int minNum,
-                           int maxNum,
-                           SubQuestionDto... questions) {
+                           String... optionDefaultTexts) {
             this(QuestionType.choice, titleDefaultText, seq, categoryId, fitRule, validateRule);
+            this.optionDefaultTexts = optionDefaultTexts;
+        }
+
+        // 复合题
+        public QuestionDto(String titleDefaultText,
+                           Double seq,
+                           Integer categoryId,
+                           String fitRule,
+                           String validateRule,
+                           Integer minNum,
+                           Integer maxNum,
+                           QuestionDto... questionDtos) {
+            this(QuestionType.compound, titleDefaultText, seq, categoryId, fitRule, validateRule);
 
             this.minNum = minNum;
             this.maxNum = maxNum;
 
-            for (SubQuestionDto item :questions) {
-                this.questions.add(item);
-            }
+            this.questionDtos = questionDtos;
+        }
+
+        // 子问题
+        public QuestionDto(QuestionType questionType,
+                           String titleDefaultText,
+                           double seq,
+                           String validateRule) {
+            this.questionType = questionType;
+            this.titleDefaultText = titleDefaultText;
+            this.seq = seq;
+            this.validateRule = validateRule;
+        }
+
+        public QuestionDto(String titleDefaultText,
+                           String validateRule,
+                           double seq,
+                           String... optionDefaultTexts) {
+            this(QuestionType.choice, titleDefaultText, seq, validateRule);
+            this.optionDefaultTexts = optionDefaultTexts;
         }
 
         public void validate() {
             if (questionType.equals(QuestionType.choice)) {
-                if (options.size() < 2) {
+                if (optionDefaultTexts == null || optionDefaultTexts.length < 2) {
                     throw new ValidateException("选择题的选项至少要有2项!");
                 }
             } else if (questionType.equals(QuestionType.compound)) {
-                if (questions.size() < 1) {
+                if (questionDtos == null || questionDtos.length < 1) {
                     throw new ValidateException("复合题的子问题至少要有1项!");
                 }
 
-                for (SubQuestionDto item : questions) {
-                    item.validate();
+                for (QuestionDto item : questionDtos) {
+                    item.subValidate();
                 }
+            }
+        }
+
+        public void subValidate() {
+            if (questionType.equals(QuestionType.choice)) {
+                if (optionDefaultTexts == null || optionDefaultTexts.length < 2) {
+                    throw new ValidateException("选择题的选项至少要有2项!");
+                }
+            } else if (questionType.equals(QuestionType.compound)) {
+                throw new ValidateException("子问题不能是复合题!");
             }
         }
     }

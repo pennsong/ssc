@@ -1,78 +1,53 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Question extends Validatable {
     @Id
     @GeneratedValue
-    private int id;
+    private Integer id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @NotNull
     private MultiLang title;
 
-    private double seq;
+    @NotNull
+    @Min(0)
+    @Setter
+    private Double seq;
 
+    @NotNull
     private QuestionType questionType;
 
     @ManyToOne
+    @Setter
     private Category category;
 
-    private boolean compoundItem;
+    @NotNull
+    private Boolean compoundItem;
 
     @Setter
     @Getter
-    private String fitRule = "true";
+    @Size(min = 1, max = 500)
+    private String fitRule;
 
+    @Setter
+    @Size(min = 1, max = 500)
     private String validateRule;
 
     @ManyToOne
     @JsonIgnore
     private CompoundQuestion compoundQuestion;
-
-    protected Question() {
-    }
-
-    protected Question(QuestionType questionType) {
-        this.questionType = questionType;
-    }
-
-    protected Question(QuestionType questionType, String titleDefaultText) {
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-    }
-
-    protected Question(QuestionType questionType, String titleDefaultText, Category category) {
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-        this.category = category;
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-    }
-
-    protected Question(QuestionType questionType, String titleDefaultText, Category category, String fitRule) {
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-        this.category = category;
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-        this.fitRule = fitRule;
-    }
-
-    protected Question(QuestionType questionType, String titleDefaultText, Category category, String fitRule, String validateRule) {
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-        this.category = category;
-        this.questionType = questionType;
-        this.title = new MultiLang(titleDefaultText);
-        this.fitRule = fitRule;
-        this.validateRule = validateRule;
-    }
 
     public void setCompoundQuestion(CompoundQuestion compoundQuestion) {
         if (compoundQuestion == null) {

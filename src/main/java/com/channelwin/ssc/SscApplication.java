@@ -14,6 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @SpringBootApplication
 public class SscApplication {
@@ -40,35 +43,37 @@ public class SscApplication {
     public CommandLineRunner initData(CategoryRepository categoryRepository, QuestionRepository questionRepository) {
         return args -> {
             // 目录
-            Category category1 = new Category("目录1", 1.1);
+            Category category1 = FactoryService.createCategory("目录1", 1.1);
 
             category1 = categoryRepository.save(category1);
 
             for (int i = 2; i <= 20; i++) {
-               categoryRepository.save(new Category("目录" + i, i));
+               categoryRepository.save( FactoryService.createCategory("目录" + i, new Double(i)));
             }
 
             // 填空题
-            CompletionQuestion completionQuestion1 = new CompletionQuestion("填空题1");
+            CompletionQuestion completionQuestion1 = FactoryService.createCompletionQuestion("填空题1", category1);
 
             // 判断题
-            JudgementQuestion judgementQuestion1 = new JudgementQuestion("判断题1");
+            JudgementQuestion judgementQuestion1 = FactoryService.createJudgementQuestion("判断题1", category1);
 
             // 选择题
-            ChoiceQuestion choiceQuestion1 = new ChoiceQuestion("选择题1");
+            ChoiceQuestion choiceQuestion1 = FactoryService.createChoiceQuestion("选择题1", category1, "选择题1_选项1", "选择题1_选项2");
 
             // 复合题
-            CompletionQuestion compoundCompletionQuestion1 = new CompletionQuestion("复合填空题1");
-            JudgementQuestion compoundJudgementQuestion1 = new JudgementQuestion("复合判断题1");
-            ChoiceQuestion compoundChoiceQuestion1 = new ChoiceQuestion("复合选择题1");
+            CompletionQuestion compoundCompletionQuestion1 = FactoryService.createCompletionQuestion("复合填空题1", category1);
+            JudgementQuestion compoundJudgementQuestion1 = FactoryService.createJudgementQuestion("复合判断题1", category1);
+            ChoiceQuestion compoundChoiceQuestion1 = FactoryService.createChoiceQuestion("复合选择题1", category1, "复合选择题1_选项1", "复合选择题1_选项2");
 
-            CompoundQuestion compoundQuestion1 = new CompoundQuestion(
-                    "复合题!",
+            List<Question> questionList = new ArrayList();
+            questionList.add(compoundCompletionQuestion1);
+            questionList.add(compoundJudgementQuestion1);
+            questionList.add(compoundChoiceQuestion1);
+
+            CompoundQuestion compoundQuestion1 = FactoryService.createCompoundQuestion(
+                    "复合题1",
                     category1,
-//            "#gender == T(com.channelwin.ssc.Gender).MALE",
-                    compoundCompletionQuestion1,
-                    compoundJudgementQuestion1,
-                    compoundChoiceQuestion1
+                    questionList
             );
 
             questionRepository.save(completionQuestion1);
