@@ -1,13 +1,18 @@
 package com.channelwin.ssc.QuestionWarehouse;
 
 import com.channelwin.ssc.QuestionWarehouse.controller.MainController;
-import com.channelwin.ssc.QuestionWarehouse.model.*;
+import com.channelwin.ssc.QuestionWarehouse.model.Category;
+import com.channelwin.ssc.QuestionWarehouse.model.Question;
+import com.channelwin.ssc.QuestionWarehouse.model.QuestionType;
+import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
+import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +22,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Transactional
 public class MainControllerTest {
 
     @LocalServerPort
@@ -30,81 +37,228 @@ public class MainControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // 目录
-    Category category1 = new Category("目录1", 0);
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-    // 填空题
-    CompletionQuestion completionQuestion1 = new CompletionQuestion("填空题1");
+    @Autowired
+    private QuestionRepository questionRepository;
 
-    // 判断题
-    JudgementQuestion judgementQuestion1 = new JudgementQuestion("判断题1");
+    private String baseUrl = "http://localhost:" + port + "/questionWarehouse";
 
-    // 选择题
-    ChoiceQuestion choiceQuestion1 = new ChoiceQuestion("选择题1");
+    private String categoryBaseUrl = baseUrl + "/category";
 
-    // 复合题
-    CompletionQuestion compoundCompletionQuestion1 = new CompletionQuestion("复合填空题1");
-    JudgementQuestion compoundJudgementQuestion1 = new JudgementQuestion("复合判断题1");
-    ChoiceQuestion compoundChoiceQuestion1 = new ChoiceQuestion("复合选择题1");
+    private String questionBaseUrl = baseUrl + "/question";
 
-    CompoundQuestion compoundQuestion1 = new CompoundQuestion(
-            "复合题!",
-            category1,
-//            "#gender == T(com.channelwin.ssc.Gender).MALE",
-            compoundCompletionQuestion1,
-            compoundJudgementQuestion1,
-            compoundChoiceQuestion1
-    );
-
+    @Autowired
+    private ObjectMapper objectMapper;
 
     // 目录
     // 添加目录
     @Test
     public void addCategory() throws Exception {
-        String baseUrl = "http://localhost:" + port + "/questionWarehouse/category";
+        MainController.CategoryDTO dto1 = new MainController.CategoryDTO("目录t1", 2.1);
 
-        MainController.CategoryDTO dto1 = new MainController.CategoryDTO("目录1", 2.0);
-        MainController.CategoryDTO dto2 = new MainController.CategoryDTO("目录2", 1.0);
-
-        mockMvc.perform(MockMvcRequestBuilders.post(baseUrl)
-                .content(new ObjectMapper().writeValueAsString(dto1))
+        mockMvc.perform(MockMvcRequestBuilders.post(categoryBaseUrl)
+                .content(objectMapper.writeValueAsString(dto1))
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
-        mockMvc.perform(MockMvcRequestBuilders.post(baseUrl)
-                .content(new ObjectMapper().writeValueAsString(dto2))
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(baseUrl)
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
-
-        JSONAssert.assertEquals("[ {\n" +
-                "  \"title\" : {\n" +
-                "    \"id\" : 4,\n" +
-                "    \"defaultText\" : \"目录2\",\n" +
-                "    \"translation\" : { }\n" +
-                "  },\n" +
-                "  \"seq\" : 1.0\n" +
-                "}, {\n" +
-                "  \"title\" : {\n" +
-                "    \"id\" : 2,\n" +
-                "    \"defaultText\" : \"目录1\",\n" +
-                "    \"translation\" : { }\n" +
-                "  },\n" +
-                "  \"seq\" : 2.0\n" +
-                "} ]", result.getResponse().getContentAsString(), JSONCompareMode.LENIENT);
+        Category category = categoryRepository.findByTitleDefaultText("目录t1").get(0);
+        String target = "{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录t1\"\n" +
+                "    },\n" +
+                "    \"seq\": 2.1\n" +
+                "}";
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
     }
 
     // 删除目录
+    @Test
+    public void deleteCategory() throws Exception {
+        Assert.assertEquals(true, categoryRepository.findById(1).isPresent());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(categoryBaseUrl + "/{id}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        Assert.assertEquals(false, categoryRepository.findById(1).isPresent());
+    }
+
     // 编辑目录
+    @Test
+    public void editCategory() throws Exception {
+        Category category = categoryRepository.findById(1).get();
+
+        String target = "{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录1\"\n" +
+                "    },\n" +
+                "    \"seq\": 1.1\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
+
+        MainController.CategoryDTO dto = new MainController.CategoryDTO("目录1c", 1.11);
+
+        mockMvc.perform(MockMvcRequestBuilders.put(categoryBaseUrl + "/{id}", 1)
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        category = categoryRepository.findById(1).get();
+
+        target = "{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录1c\"\n" +
+                "    },\n" +
+                "    \"seq\": 1.11\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
+    }
+
     // 获取单个目录
+    @Test
+    public void getCategory() throws Exception {
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(categoryBaseUrl + "/{id}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn();
+
+        String target = "{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录1\"\n" +
+                "    },\n" +
+                "    \"seq\": 1.1\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, result.getResponse().getContentAsString(), false);
+    }
+
     // 获取多个目录
+    @Test
+    public void getCategories() throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(categoryBaseUrl + "?pageNum=1&pageSize=2")
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn();
+
+        String target = "[{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录3\"\n" +
+                "    },\n" +
+                "    \"seq\": 3.0\n" +
+                "},\n" +
+                "{\n" +
+                "    \"title\": {\n" +
+                "        \"defaultText\": \"目录4\"\n" +
+                "    },\n" +
+                "    \"seq\": 4.0\n" +
+                "}]";
+
+        JSONAssert.assertEquals(target, JsonPath.parse(result.getResponse().getContentAsString()).read("$.content").toString(), false);
+    }
     // end 目录
 
     // 题目
     // 添加题目
+    @Test
+    public void addQuestion1() throws Exception {
+        MainController.QuestionDto questionDto = new MainController.QuestionDto(
+                QuestionType.completion,
+                "填空题t1",
+                1.1,
+                1,
+                "1 == 1",
+                "2 == 1"
+        );
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
+                .content(objectMapper.writeValueAsString(questionDto))
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andReturn();
+
+        Question question = questionRepository.findByTitleDefaultText("填空题t1").get(0);
+
+        String target = "{\n" +
+                "    \"questionType\": \"completion\",\n" +
+                "    \"titleDefaultText\": \"选择题t1\",\n" +
+                "    \"seq\": 1.1,\n" +
+                "    \"categoryId\": 1,\n" +
+                "    \"fitRule\": \"1 == 1\",\n" +
+                "    \"validateRule\": \"2 == 2\",\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
+    }
+
+//    @Test
+//    public void addQuestion2() throws Exception {
+//        MainController.QuestionDto questionDto = new MainController.QuestionDto(
+//                QuestionType.completion,
+//                "选择题t1",
+//                1.1,
+//                1,
+//                "1 == 1",
+//                "2 == 1"
+//        );
+//
+//        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
+//                .content(objectMapper.writeValueAsString(questionDto))
+//                .contentType(MediaType.APPLICATION_JSON)
+//        ).andReturn();
+//
+//        Question question = questionRepository.findByTitleDefaultText("复合题t1").get(0);
+//
+//        String target = "{\n" +
+//                "    \"questionType\": \"compound\",\n" +
+//                "    \"titleDefaultText\": \"复合题t1\",\n" +
+//                "    \"seq\": 1.1,\n" +
+//                "    \"categoryId\": 1,\n" +
+//                "    \"fitRule\": \"1 == 1\",\n" +
+//                "    \"validateRule\": \"2 == 2\",\n" +
+//                "    \"minNum\": 1,\n" +
+//                "    \"maxNum\": 5,\n" +
+//                "    \"questions\": [\n" +
+//                "        {\n" +
+//                "            \"questionType\": \"completion\",\n" +
+//                "            \"titleDefaultText\": \"子填空题t1_1\",\n" +
+//                "            \"seq\": 1.1,\n" +
+//                "            \"validateRule\": \"2 == 2\"\n" +
+//                "        },\n" +
+//                "        {\n" +
+//                "            \"questionType\": \"judgement\",\n" +
+//                "            \"titleDefaultText\": \"子判断题t1_2\",\n" +
+//                "            \"seq\": 1.2,\n" +
+//                "            \"validateRule\": \"2 == 2\"\n" +
+//                "        },\n" +
+//                "        {\n" +
+//                "            \"questionType\": \"choice\",\n" +
+//                "            \"titleDefaultText\": \"子选择题t1_3\",\n" +
+//                "            \"seq\": 1.3,\n" +
+//                "            \"validateRule\": \"2 == 2\",\n" +
+//                "            \"options\": [\n" +
+//                "                {\n" +
+//                "                    \"key\": 1,\n" +
+//                "                    \"value\": {\n" +
+//                "                        \"defaultText\": \"子问题选项1\"\n" +
+//                "                    },\n" +
+//                "                    \"score\": 1\n" +
+//                "                },\n" +
+//                "                {\n" +
+//                "                    \"key\": 2,\n" +
+//                "                    \"value\": {\n" +
+//                "                        \"defaultText\": \"子问题选项2\"\n" +
+//                "                    },\n" +
+//                "                    \"score\": 2\n" +
+//                "                }\n" +
+//                "            ]\n" +
+//                "        }\n" +
+//                "    ]\n" +
+//                "}";
+//
+//        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
+//    }
     // 删除题目
     // 编辑题目
     // 获取单个题目

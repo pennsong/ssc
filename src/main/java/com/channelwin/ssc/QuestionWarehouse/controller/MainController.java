@@ -18,11 +18,13 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -32,6 +34,7 @@ import static com.channelwin.ssc.Gender.MALE;
 @Slf4j
 @RestController
 @RequestMapping("/questionWarehouse")
+@Transactional
 public class MainController {
     private MultiLangRepository multiLangRepository;
 
@@ -85,8 +88,10 @@ public class MainController {
 
     // 获取多个目录
     @RequestMapping(path = "/category")
-    public Iterable<Category> getCategories() {
-        return categoryRepository.findAll();
+    public Iterable<Category> getCategories(@RequestParam int pageNum, @RequestParam int pageSize) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+
+        return categoryRepository.findAll(pageable);
     }
     // end 目录
 
@@ -94,7 +99,11 @@ public class MainController {
     // 添加题目
     @RequestMapping(path = "/question", method = RequestMethod.POST)
     public void addQuestion(@Valid @RequestBody QuestionDto questionDto) {
+        questionDto.validate();
 
+        if (questionDto.questionType == QuestionType.completion) {
+//            CompletionQuestion completionQuestion = new CompletionQuestion();
+        }
     }
 
     // 删除题目
@@ -102,11 +111,13 @@ public class MainController {
     public void deleteQuestion(int id) {
 
     }
+
     // 编辑题目
     @RequestMapping(path = "/question", method = RequestMethod.PUT)
     public void editQuestion(@Valid @RequestBody QuestionDto questionDto) {
 
     }
+
     // 获取单个题目
     @RequestMapping(path = "/question/{id}", method = RequestMethod.GET)
     public Question getQuestion(@PathVariable int id) {
@@ -120,7 +131,7 @@ public class MainController {
     public Page<Question> getQuestions(@RequestParam int pageNum, @RequestParam int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
 
-        return  questionRepository.findAll(pageable);
+        return questionRepository.findAll(pageable);
     }
     // end 题目
 
@@ -141,39 +152,6 @@ public class MainController {
         return list;
     }
 
-    @RequestMapping("/initData")
-    @ResponseBody
-    public String initData() {
-        Category category1 = categoryRepository.findById(1).get();
-
-        // 填空题
-        CompletionQuestion completionQuestion1 = new CompletionQuestion("填空题1");
-
-        // 判断题
-        JudgementQuestion judgementQuestion1 = new JudgementQuestion("判断题1");
-
-        // 选择题
-        ChoiceQuestion choiceQuestion1 = new ChoiceQuestion("选择题1");
-
-        // 复合题
-        CompletionQuestion compoundCompletionQuestion1 = new CompletionQuestion("复合填空题1");
-        JudgementQuestion compoundJudgementQuestion1 = new JudgementQuestion("复合判断题1");
-        ChoiceQuestion compoundChoiceQuestion1 = new ChoiceQuestion("复合选择题1");
-
-        CompoundQuestion compoundQuestion1 = new CompoundQuestion(
-                "复合题!",
-                category1,
-                "gender == T(com.channelwin.ssc.Gender).MALE",
-                compoundCompletionQuestion1,
-                compoundJudgementQuestion1,
-                compoundChoiceQuestion1
-        );
-
-        questionRepository.save(compoundQuestion1);
-
-        return "initData OK";
-    }
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -187,8 +165,138 @@ public class MainController {
 
     @Data
     @NoArgsConstructor
-//    @AllArgsConstructor
+    @AllArgsConstructor
     public static class QuestionDto {
 
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class SubQuestionDto {
+            @NotNull
+            QuestionType questionType;
+
+            @NotNull
+            String titleDefaultText;
+
+            @NotNull
+            Double seq;
+
+            String validateRule;
+
+            List<Option> options = new ArrayList();
+
+            public SubQuestionDto(QuestionType questionType,
+                                  String titleDefaultText,
+                                  double seq,
+                                  String validateRule) {
+                this.questionType = questionType;
+                this.titleDefaultText = titleDefaultText;
+                this.seq = seq;
+                this.validateRule = validateRule;
+            }
+
+            public SubQuestionDto(String titleDefaultText,
+                                  double seq,
+                                  String validateRule,
+                                  String... options) {
+                this(QuestionType.choice, titleDefaultText, seq, validateRule);
+
+                for (String item :options) {
+                    String[] strings = item.split(":");
+                    this.options.add(new Option(Integer.parseInt(strings[0]), strings[1]));
+                }
+            }
+
+            public void validate() {
+                if (questionType.equals(QuestionType.choice)) {
+                    if (options.size() < 2) {
+                        throw new ValidateException("选择题的选项至少要有2项!");
+                    }
+                } else if (questionType.equals(QuestionType.compound)) {
+                    throw new ValidateException("子问题不能是复合题!");
+                }
+            }
+        }
+
+        @NotNull
+        QuestionType questionType;
+
+        @NotNull
+        String titleDefaultText;
+
+        @NotNull
+        Double seq;
+
+        @NotNull
+        Integer categoryId;
+
+        String fitRule;
+
+        String validateRule;
+
+        List<Option> options = new ArrayList();
+
+        int minNum;
+
+        int maxNum;
+
+        private List<SubQuestionDto> questions = new ArrayList<>();
+
+        public QuestionDto(QuestionType questionType,
+                           String titleDefaultText,
+                           double seq,
+                           int categoryId,
+                           String fitRule,
+                           String validateRule) {
+
+        }
+
+        public QuestionDto(String titleDefaultText,
+                              double seq,
+                              int categoryId,
+                              String fitRule,
+                              String validateRule,
+                              String... options) {
+            this(QuestionType.choice, titleDefaultText, seq, categoryId, fitRule, validateRule);
+
+            for (String item :options) {
+                String[] strings = item.split(":");
+                this.options.add(new Option(Integer.parseInt(strings[0]), strings[1]));
+            }
+        }
+
+        public QuestionDto(String titleDefaultText,
+                           double seq,
+                           int categoryId,
+                           String fitRule,
+                           String validateRule,
+                           int minNum,
+                           int maxNum,
+                           SubQuestionDto... questions) {
+            this(QuestionType.choice, titleDefaultText, seq, categoryId, fitRule, validateRule);
+
+            this.minNum = minNum;
+            this.maxNum = maxNum;
+
+            for (SubQuestionDto item :questions) {
+                this.questions.add(item);
+            }
+        }
+
+        public void validate() {
+            if (questionType.equals(QuestionType.choice)) {
+                if (options.size() < 2) {
+                    throw new ValidateException("选择题的选项至少要有2项!");
+                }
+            } else if (questionType.equals(QuestionType.compound)) {
+                if (questions.size() < 1) {
+                    throw new ValidateException("复合题的子问题至少要有1项!");
+                }
+
+                for (SubQuestionDto item : questions) {
+                    item.validate();
+                }
+            }
+        }
     }
 }

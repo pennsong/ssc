@@ -50,16 +50,28 @@ public class Question extends Validatable {
     protected Question(QuestionType questionType, String titleDefaultText, Category category) {
         this.questionType = questionType;
         this.title = new MultiLang(titleDefaultText);
-        this.category = category; this.questionType = questionType;
+        this.category = category;
+        this.questionType = questionType;
         this.title = new MultiLang(titleDefaultText);
     }
 
     protected Question(QuestionType questionType, String titleDefaultText, Category category, String fitRule) {
         this.questionType = questionType;
         this.title = new MultiLang(titleDefaultText);
-        this.category = category; this.questionType = questionType;
+        this.category = category;
+        this.questionType = questionType;
         this.title = new MultiLang(titleDefaultText);
         this.fitRule = fitRule;
+    }
+
+    protected Question(QuestionType questionType, String titleDefaultText, Category category, String fitRule, String validateRule) {
+        this.questionType = questionType;
+        this.title = new MultiLang(titleDefaultText);
+        this.category = category;
+        this.questionType = questionType;
+        this.title = new MultiLang(titleDefaultText);
+        this.fitRule = fitRule;
+        this.validateRule = validateRule;
     }
 
     public void setCompoundQuestion(CompoundQuestion compoundQuestion) {
