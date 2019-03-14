@@ -74,43 +74,35 @@ public class MainControllerTest {
     // 删除目录
     @Test
     public void deleteCategory() throws Exception {
-        Assert.assertEquals(true, categoryRepository.findById(1).isPresent());
+        Category category = categoryRepository.findByTitleDefaultText("目录1").get(0);
+        int id = category.getId();
 
-        mockMvc.perform(MockMvcRequestBuilders.delete(categoryBaseUrl + "/{id}", 1)
+        Assert.assertEquals(true, categoryRepository.findById(id).isPresent());
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(categoryBaseUrl + "/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
-        Assert.assertEquals(false, categoryRepository.findById(1).isPresent());
+        Assert.assertEquals(false, categoryRepository.findById(id).isPresent());
     }
 
     // 编辑目录
     @Test
     public void editCategory() throws Exception {
-        Category category = categoryRepository.findById(1).get();
+        Category category = categoryRepository.findByTitleDefaultText("目录1").get(0);
+        int id = category.getId();
 
-        String target = "{\n" +
-                "    \"title\": {\n" +
-                "        \"defaultText\": \"目录1\"\n" +
-                "    },\n" +
-                "    \"seq\": 1.1\n" +
-                "}";
+        MainController.CategoryEditDTO dto = new MainController.CategoryEditDTO(99.9);
 
-        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
-
-        MainController.CategoryDTO dto = new MainController.CategoryDTO("目录1c", 1.11);
-
-        mockMvc.perform(MockMvcRequestBuilders.put(categoryBaseUrl + "/{id}", 1)
+        mockMvc.perform(MockMvcRequestBuilders.put(categoryBaseUrl + "/{id}", id)
                 .content(objectMapper.writeValueAsString(dto))
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
-        category = categoryRepository.findById(1).get();
+        category = categoryRepository.findById(id).get();
 
-        target = "{\n" +
-                "    \"title\": {\n" +
-                "        \"defaultText\": \"目录1\"\n" +
-                "    },\n" +
-                "    \"seq\": 1.11\n" +
+        String target = "{\n" +
+                "    \"seq\": 99.9\n" +
                 "}";
 
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
@@ -119,8 +111,10 @@ public class MainControllerTest {
     // 获取单个目录
     @Test
     public void getCategory() throws Exception {
+        Category category = categoryRepository.findByTitleDefaultText("目录1").get(0);
+        int id = category.getId();
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(categoryBaseUrl + "/{id}", 1)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(categoryBaseUrl + "/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andReturn();
 
@@ -281,6 +275,7 @@ public class MainControllerTest {
 
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
     }
+
     // 删除题目
     @Test
     public void deleteQuestion() throws Exception {
@@ -296,7 +291,32 @@ public class MainControllerTest {
 
         Assert.assertEquals(false, questionRepository.findById(id).isPresent());
     }
+
     // 编辑题目
+    @Test
+    public void editQuestion() throws Exception {
+        Question question = questionRepository.findByTitleDefaultText("填空题1").get(0);
+        int id = question.getId();
+
+        MainController.QuestionEditDto dto = new MainController.QuestionEditDto(8.8, 3, null);
+
+        mockMvc.perform(MockMvcRequestBuilders.put(questionBaseUrl + "/{id}", id)
+                .content(objectMapper.writeValueAsString(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        question = questionRepository.findById(id).get();
+
+        String target = "{\n" +
+                "    \"id\": 41,\n" +
+                "    \"seq\": 8.8,\n" +
+                "    \"category\": {\n" +
+                "        \"id\": 3\n" +
+                "    }\n" +
+                "}";
+
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
+    }
     // 获取单个题目
     // 获取多个题目
     // end 题目
