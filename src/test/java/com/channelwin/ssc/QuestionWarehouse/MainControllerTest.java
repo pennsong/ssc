@@ -108,7 +108,7 @@ public class MainControllerTest {
 
         target = "{\n" +
                 "    \"title\": {\n" +
-                "        \"defaultText\": \"目录1c\"\n" +
+                "        \"defaultText\": \"目录1\"\n" +
                 "    },\n" +
                 "    \"seq\": 1.11\n" +
                 "}";
@@ -282,6 +282,20 @@ public class MainControllerTest {
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
     }
     // 删除题目
+    @Test
+    public void deleteQuestion() throws Exception {
+        Question question = questionRepository.findByTitleDefaultText("填空题1").get(0);
+        int id = question.getId();
+
+        Assert.assertEquals(true, questionRepository.findById(id).isPresent());
+
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(questionBaseUrl + "/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        Assert.assertEquals(false, questionRepository.findById(id).isPresent());
+    }
     // 编辑题目
     // 获取单个题目
     // 获取多个题目

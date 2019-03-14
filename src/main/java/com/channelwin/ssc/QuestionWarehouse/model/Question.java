@@ -15,6 +15,7 @@ import javax.validation.constraints.Size;
 public class Question extends Validatable {
     @Id
     @GeneratedValue
+    @Getter
     private Integer id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

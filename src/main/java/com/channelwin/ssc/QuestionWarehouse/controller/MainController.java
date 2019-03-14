@@ -1,10 +1,14 @@
 package com.channelwin.ssc.QuestionWarehouse.controller;
 
 import com.channelwin.ssc.EntryMaterialCollecting.EmployeeFixItem;
-import com.channelwin.ssc.QuestionWarehouse.model.*;
+import com.channelwin.ssc.QuestionWarehouse.model.Category;
+import com.channelwin.ssc.QuestionWarehouse.model.FactoryService;
+import com.channelwin.ssc.QuestionWarehouse.model.Question;
+import com.channelwin.ssc.QuestionWarehouse.model.QuestionType;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.channelwin.ssc.ValidateException;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -72,7 +76,6 @@ public class MainController {
     @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
     public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryDTO dto) {
         Category category = categoryRepository.findById(id).get();
-        category.setDefaultText(dto.defaultText);
         category.setSeq(dto.seq);
 
         categoryRepository.save(category);
@@ -107,8 +110,8 @@ public class MainController {
 
     // 删除题目
     @RequestMapping(path = "/question/{id}", method = RequestMethod.DELETE)
-    public void deleteQuestion(int id) {
-
+    public void deleteQuestion(@PathVariable int id) {
+        questionRepository.deleteById(id);
     }
 
     // 编辑题目
@@ -130,10 +133,9 @@ public class MainController {
     public Page<Question> getQuestions(@RequestParam int pageNum, @RequestParam int pageSize) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
 
-        return questionRepository.findAll(pageable);
+        return questionRepository.findAllTopQuestion(pageable);
     }
     // end 题目
-
 
     // 获取入职试卷
     @RequestMapping(path = "/getEntryPaper", method = RequestMethod.GET)
@@ -152,7 +154,7 @@ public class MainController {
     }
 
     @Data
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor
     public static class CategoryDTO {
         @NotNull
@@ -163,7 +165,7 @@ public class MainController {
     }
 
     @Data
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor
     public static class QuestionDto {
         @NotNull
@@ -274,6 +276,34 @@ public class MainController {
                 }
             } else if (questionType.equals(QuestionType.compound)) {
                 throw new ValidateException("子问题不能是复合题!");
+            }
+        }
+    }
+
+    @Data
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor
+    public static class QuestionEditDto {
+        @NotNull
+        Double seq;
+
+        Integer categoryId;
+
+        QuestionEditDto[] questionEditDtos;
+
+        public void validate() {
+            if (categoryId == null) {
+                throw new ValidateException("目录id不能为空!");
+            }
+
+            for (QuestionEditDto item : questionEditDtos) {
+                item.subValidate();
+            }
+        }
+
+        public void subValidate() {
+            if (categoryId != null) {
+                throw new ValidateException("子问题不能有目录id!");
             }
         }
     }
