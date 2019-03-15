@@ -18,8 +18,8 @@ public class ChoiceQuestion extends Question {
     @NotNull
     private Boolean multiple;
 
-    ChoiceQuestion(List<Option> options, Boolean multiple, MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, String validateRule, CompoundQuestion compoundQuestion) {
-        super(null, title, seq, questionType, category, compoundItem, fitRule, validateRule, compoundQuestion);
+    ChoiceQuestion(List<Option> options, Boolean multiple, MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
+        super(null, title, seq, questionType, category, compoundItem, fitRule, validateRules, compoundQuestion);
         this.options = options;
         this.multiple = multiple;
     }

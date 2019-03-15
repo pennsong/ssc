@@ -19,19 +19,20 @@ public class CompoundQuestion extends Question {
     @Getter
     @Setter
     @NotNull
-    private Integer minNum = 1;
+    private Integer minNum;
 
     @Getter
     @Setter
     @NotNull
-    private Integer maxNum = 1;
+    private Integer maxNum;
 
     @OneToMany(mappedBy = "compoundQuestion", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @NotNull
+    @Getter
     private List<Question> questions;
 
-    CompoundQuestion(Integer minNum, Integer maxNum, List<Question> questions, MultiLang title, Double seq, QuestionType questionType, Category category, String fitRule, String validateRule) {
-        super(null, title, seq, questionType, category, false, fitRule, validateRule, null);
+    CompoundQuestion(Integer minNum, Integer maxNum, List<Question> questions, MultiLang title, Double seq, QuestionType questionType, Category category, String fitRule, List<ValidateRule> validateRules) {
+        super(null, title, seq, questionType, category, false, fitRule, validateRules, null);
         this.minNum = minNum;
         this.maxNum = maxNum;
 

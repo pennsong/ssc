@@ -162,7 +162,7 @@ public class MainControllerTest {
                 1.1,
                 1,
                 "1 == 1",
-                "2 == 1"
+                new String[]{"2 == 1"}
         );
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
@@ -192,16 +192,16 @@ public class MainControllerTest {
     @Test
     public void addQuestion2() throws Exception {
 
-        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1, "2 == 2");
-        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, "2 == 2");
-        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1", "2 == 2", 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
+        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"2 == 1"});
+        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2,  new String[]{"2 == 1"});
+        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1",  new String[]{"2 == 1"}, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
 
         MainController.QuestionDto questionDto = new MainController.QuestionDto(
                 "复合题t1",
                 1.1,
                 1,
                 "1 == 1",
-                "2 == 2",
+                new String[]{"2 == 1"},
                 1,
                 5,
                 completionQuestion1,

@@ -81,7 +81,7 @@ public class FactoryService {
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);
 
-        return new CompletionQuestion(title, 0.0, QuestionType.completion, null, false, null, null, null);
+        return new CompletionQuestion(title, 0.0, QuestionType.completion, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText, Category category) {
@@ -98,10 +98,10 @@ public class FactoryService {
         return question;
     }
 
-    public static CompletionQuestion createCompletionQuestion(String titleDefaultText, Category category, Double seq, String fitRule, String validateRule) {
+    public static CompletionQuestion createCompletionQuestion(String titleDefaultText, Category category, Double seq, String fitRule, List<ValidateRule> validateRules) {
         CompletionQuestion question = createCompletionQuestion(titleDefaultText, category, seq);
         question.setFitRule(fitRule);
-        question.setValidateRule(validateRule);
+        question.addValidateRules(validateRules);
 
         return question;
     }
@@ -127,10 +127,10 @@ public class FactoryService {
         return question;
     }
 
-    public static JudgementQuestion createJudgementQuestion(String titleDefaultText, Category category, Double seq, String fitRule, String validateRule) {
+    public static JudgementQuestion createJudgementQuestion(String titleDefaultText, Category category, Double seq, String fitRule, List<ValidateRule> validateRules) {
         JudgementQuestion question = createJudgementQuestion(titleDefaultText, category, seq);
         question.setFitRule(fitRule);
-        question.setValidateRule(validateRule);
+        question.addValidateRules(validateRules);
 
         return question;
     }
@@ -158,10 +158,10 @@ public class FactoryService {
         return question;
     }
 
-    public static ChoiceQuestion createChoiceQuestion(String titleDefaultText, Category category, String fitRule, String validateRule, Double seq, String... options) {
+    public static ChoiceQuestion createChoiceQuestion(String titleDefaultText, Category category, String fitRule, List<ValidateRule> validateRules, Double seq, String... options) {
         ChoiceQuestion question = createChoiceQuestion(titleDefaultText, category, seq, options);
         question.setFitRule(fitRule);
-        question.setValidateRule(validateRule);
+        question.addValidateRules(validateRules);
 
         return question;
     }
@@ -190,12 +190,12 @@ public class FactoryService {
         return question;
     }
 
-    public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions, Double seq, Integer minNum, Integer maxNum, String fitRule, String validateRule) {
+    public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions, Double seq, Integer minNum, Integer maxNum, String fitRule, List<ValidateRule> validateRules) {
         CompoundQuestion question = createCompoundQuestion(titleDefaultText, category, questions, seq);
         question.setMinNum(minNum);
         question.setMaxNum(maxNum);
         question.setFitRule(fitRule);
-        question.setValidateRule(validateRule);
+        question.addValidateRules(validateRules);
 
         return question;
     }
@@ -206,18 +206,18 @@ public class FactoryService {
 
         switch (questionDto.getQuestionType()) {
             case completion:
-                return createCompletionQuestion(questionDto.getTitleDefaultText(), category, questionDto.getSeq(), questionDto.getFitRule(), questionDto.getValidateRule());
+                return createCompletionQuestion(questionDto.getTitleDefaultText(), category, questionDto.getSeq(), questionDto.getFitRule(), questionDto.generateValidateRules());
             case judgement:
-                return createJudgementQuestion(questionDto.getTitleDefaultText(), category, questionDto.getSeq(), questionDto.getFitRule(), questionDto.getValidateRule());
+                return createJudgementQuestion(questionDto.getTitleDefaultText(), category, questionDto.getSeq(), questionDto.getFitRule(), questionDto.generateValidateRules());
             case choice:
-                return createChoiceQuestion(questionDto.getTitleDefaultText(), category, questionDto.getFitRule(), questionDto.getValidateRule(), questionDto.getSeq(), questionDto.getOptionDefaultTexts());
+                return createChoiceQuestion(questionDto.getTitleDefaultText(), category, questionDto.getFitRule(), questionDto.generateValidateRules(), questionDto.getSeq(), questionDto.getOptionDefaultTexts());
             case compound:
                 List<Question> questionList = new ArrayList<>();
                 for (MainController.QuestionDto item: questionDto.getQuestionDtos()) {
                     Question question = createQuestionFromQuestionDto(item);
                     questionList.add(question);
                 }
-                return createCompoundQuestion(questionDto.getTitleDefaultText(), category, questionList, questionDto.getSeq(), questionDto.getMinNum(), questionDto.getMaxNum(),  questionDto.getFitRule(),  questionDto.getValidateRule());
+                return createCompoundQuestion(questionDto.getTitleDefaultText(), category, questionList, questionDto.getSeq(), questionDto.getMinNum(), questionDto.getMaxNum(),  questionDto.getFitRule(),  questionDto.generateValidateRules());
             default:
                 throw new ValidateException("错误的问题类型!");
         }

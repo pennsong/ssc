@@ -52,7 +52,7 @@ public class SscApplication {
             }
 
             // 填空题
-            CompletionQuestion completionQuestion1 = FactoryService.createCompletionQuestion("填空题1", category1);
+            CompletionQuestion completionQuestion1 = FactoryService.createCompletionQuestion("填空题1", category1, 1.0, "gender == T(com.channelwin.ssc.Gender).MALE", null);
 
             // 判断题
             JudgementQuestion judgementQuestion1 = FactoryService.createJudgementQuestion("判断题1", category1);

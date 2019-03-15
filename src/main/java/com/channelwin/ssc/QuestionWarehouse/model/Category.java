@@ -1,9 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -15,6 +12,7 @@ import javax.validation.constraints.NotNull;
 public class Category extends Validatable {
     @Id
     @GeneratedValue
+    @Getter
     private Integer id;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
