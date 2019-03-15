@@ -4,7 +4,6 @@ import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.ElementCollection;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -40,8 +39,7 @@ public class ValidateRule {
     private String name;
 
     @NotNull
-    @ElementCollection
-    private List<String> values;
+    private String values;
 
     @NotNull
     private ValidateRuleType validateRuleType;
@@ -57,12 +55,16 @@ public class ValidateRule {
 
         Matcher compoundMatcher = compoundRulePattern.matcher(validateRule);
 
-        this.values = new ArrayList<>();
+        this.values = "";
 
         if (singleMatcher.find()) {
             // 一元函数
             this.name = singleMatcher.group(1);
             this.validateRuleType = ValidateRuleType.single;
+
+            if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(this.name))) {
+                throw new ValidateException("错误的校验函数名称!");
+            }
         } else if (compoundMatcher.find()) {
             // 复合函数
             this.name = compoundMatcher.group(1);
@@ -82,8 +84,10 @@ public class ValidateRule {
 
             // 取得参数list
             for (String item : valuesArray) {
-                values.add(item.trim());
+                values += item.trim();
+                values += ",";
             }
+            values = values.substring(0, values.length() - 1);
         } else {
             throw new ValidateException("校验函数格式不正确!");
         }
@@ -100,31 +104,32 @@ public class ValidateRule {
             }
 
             Set<String> testSet = new HashSet<>();
-            testSet.addAll(values);
+            List<String> valuesList = Arrays.asList(values.split(","));
+            testSet.addAll(valuesList);
 
-            if (testSet.size() != values.size()) {
+            if (testSet.size() != valuesList.size()) {
                 throw new ValidateException("操作项目不能有重复项!");
             }
 
             if (validateRuleType == ValidateRuleType.compoundSingle) {
-                if (values.size() != 1) {
+                if (valuesList.size() != 1) {
                     throw new ValidateException("一元函数的参数只能是一位!");
                 }
             } else if (validateRuleType == ValidateRuleType.compoundTwo) {
-                if (values.size() != 2) {
+                if (valuesList.size() != 2) {
                     throw new ValidateException("二元函数的参数只能是两位!");
                 }
             } else if (validateRuleType == ValidateRuleType.compoundMulti) {
-                if (values.size() == 0) {
+                if (valuesList.size() == 0) {
                     throw new ValidateException("必须要有参数!");
                 }
             }
 
             // values要有对应项目
             CompoundQuestion compoundQuestion = (CompoundQuestion) question;
-            Stream<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.getTitleDefaultText());
+            Stream<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.getTitleDefaultText2());
 
-            for (String value: values) {
+            for (String value : valuesList) {
                 if (titles.noneMatch(text -> text.equals(value))) {
                     throw new ValidateException("子问题中没有" + value + "这一项!");
                 }

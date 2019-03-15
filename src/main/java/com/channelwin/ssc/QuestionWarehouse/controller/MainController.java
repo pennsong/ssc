@@ -314,8 +314,10 @@ public class MainController {
 
         public List<ValidateRule> generateValidateRules() {
             List<ValidateRule> result = new ArrayList<>();
-            for (String item : validateRules) {
-                result.add(new ValidateRule(item));
+            if (validateRules != null ) {
+                for (String item : validateRules) {
+                    result.add(new ValidateRule(item));
+                }
             }
 
             return result;

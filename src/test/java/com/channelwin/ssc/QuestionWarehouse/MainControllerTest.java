@@ -162,7 +162,7 @@ public class MainControllerTest {
                 1.1,
                 1,
                 "1 == 1",
-                new String[]{"2 == 1"}
+                new String[]{"一元函数1"}
         );
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)

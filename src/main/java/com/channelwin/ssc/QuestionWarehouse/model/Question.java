@@ -67,15 +67,11 @@ public class Question extends Validatable {
         }
     }
 
-    public String getTitleDefaultText() {
+    public String getTitleDefaultText2() {
         return title.getDefaultText();
     }
 
     public void addValidateRules(List<ValidateRule> validateRules) {
-        if (validateRules == null) {
-            return;
-        }
-
         this.validateRules.addAll(validateRules);
     }
 

@@ -110,7 +110,7 @@ public class FactoryService {
     public static JudgementQuestion createJudgementQuestion(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);
 
-        return new JudgementQuestion(title, 0.0, QuestionType.judgement, null, false, null, null, null);
+        return new JudgementQuestion(title, 0.0, QuestionType.judgement, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static JudgementQuestion createJudgementQuestion(String titleDefaultText, Category category) {
@@ -141,7 +141,7 @@ public class FactoryService {
 
         List<Option> optionList = createOptionList(options);
 
-        return new ChoiceQuestion(optionList, false, title, 0.0, QuestionType.choice, null, false, null, null, null);
+        return new ChoiceQuestion(optionList, false, title, 0.0, QuestionType.choice, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static ChoiceQuestion createChoiceQuestion(String titleDefaultText, Category category, String... options) {
@@ -170,7 +170,7 @@ public class FactoryService {
     public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions) {
         MultiLang title = createMuliLang(titleDefaultText);
 
-        CompoundQuestion question = new CompoundQuestion(1, 10, questions, title, 0.0, QuestionType.compound, category, null, null);
+        CompoundQuestion question = new CompoundQuestion(1, 10, questions, title, 0.0, QuestionType.compound, category, null, new ArrayList<ValidateRule>());
 
         return question;
     }
