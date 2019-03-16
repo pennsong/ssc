@@ -162,7 +162,7 @@ public class MainControllerTest {
                 1.1,
                 1,
                 "1 == 1",
-                new String[]{"一元函数1"}
+                new String[]{"一元函数1", "一元函数2"}
         );
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(questionBaseUrl)
@@ -183,7 +183,14 @@ public class MainControllerTest {
                 "  },\n" +
                 "  \"compoundItem\" : false,\n" +
                 "  \"fitRule\" : \"1 == 1\",\n" +
-                "  \"validateRule\" : \"2 == 1\"\n" +
+                "  \"validateRules\" : [\n" +
+                "      {\n" +
+                "          \"name\": \"一元函数1\" \n" +
+                "      },\n" +
+                "      {\n" +
+                "          \"name\": \"一元函数2\"\n" +
+                "      }\n" +
+                "  ]\n" +
                 "}";
 
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(question), false);
@@ -192,16 +199,16 @@ public class MainControllerTest {
     @Test
     public void addQuestion2() throws Exception {
 
-        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"2 == 1"});
-        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2,  new String[]{"2 == 1"});
-        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1",  new String[]{"2 == 1"}, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
+        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"一元函数1", "一元函数2"});
+        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, null);
+        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1",  null, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
 
         MainController.QuestionDto questionDto = new MainController.QuestionDto(
                 "复合题t1",
                 1.1,
                 1,
                 "1 == 1",
-                new String[]{"2 == 1"},
+                new String[]{"复合一元函数1(子填空题t1)", "复合一元函数2(子填空题t1)"},
                 1,
                 5,
                 completionQuestion1,
@@ -226,7 +233,18 @@ public class MainControllerTest {
                 "        \"id\": 1\n" +
                 "    },\n" +
                 "    \"fitRule\": \"1 == 1\",\n" +
-                "    \"validateRule\": \"2 == 2\",\n" +
+                "    \"validateRules\": [\n" +
+                "        {\n" +
+                "            \"name\": \"复合一元函数1\",\n" +
+                "            \"values\": \"子填空题t1\",\n" +
+                "            \"validateRuleType\": \"compoundSingle\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"name\": \"复合一元函数2\",\n" +
+                "            \"values\": \"子填空题t1\",\n" +
+                "            \"validateRuleType\": \"compoundSingle\"\n" +
+                "        }\n" +
+                "    ],\n" +
                 "    \"minNum\": 1,\n" +
                 "    \"maxNum\": 5,\n" +
                 "    \"questions\": [\n" +
@@ -236,15 +254,25 @@ public class MainControllerTest {
                 "                \"defaultText\": \"子填空题t1\" \n" +
                 "            },\n" +
                 "            \"seq\": 1.1,\n" +
-                "            \"validateRule\": \"2 == 2\"\n" +
+                "            \"validateRules\": [\n" +
+                "                {\n" +
+                "                    \"name\": \"一元函数1\",\n" +
+                "                    \"values\": \"\",\n" +
+                "                    \"validateRuleType\": \"single\"\n" +
+                "                },\n" +
+                "                {\n" +
+                "                    \"name\": \"一元函数2\",\n" +
+                "                    \"values\": \"\",\n" +
+                "                    \"validateRuleType\": \"single\"\n" +
+                "                }\n" +
+                "            ]\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"questionType\": \"judgement\",\n" +
                 "            \"title\": {\n" +
                 "                \"defaultText\": \"子判断题t1\" \n" +
                 "            },\n" +
-                "            \"seq\": 1.2,\n" +
-                "            \"validateRule\": \"2 == 2\"\n" +
+                "            \"seq\": 1.2\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"questionType\": \"choice\",\n" +
@@ -252,7 +280,6 @@ public class MainControllerTest {
                 "                \"defaultText\": \"子选择题t1\" \n" +
                 "            },\n" +
                 "            \"seq\": 1.3,\n" +
-                "            \"validateRule\": \"2 == 2\",\n" +
                 "            \"options\": [\n" +
                 "                {\n" +
                 "                    \"key\": 0,\n" +

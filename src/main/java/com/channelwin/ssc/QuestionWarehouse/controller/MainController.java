@@ -322,33 +322,6 @@ public class MainController {
 
             return result;
         }
-
-        @Override
-        public void validate() {
-            if (questionType.equals(QuestionType.choice)) {
-                if (optionDefaultTexts == null || optionDefaultTexts.length < 2) {
-                    throw new ValidateException("选择题的选项至少要有2项!");
-                }
-            } else if (questionType.equals(QuestionType.compound)) {
-                if (questionDtos == null || questionDtos.length < 1) {
-                    throw new ValidateException("复合题的子问题至少要有1项!");
-                }
-
-                for (QuestionDto item : questionDtos) {
-                    item.subValidate();
-                }
-            }
-        }
-
-        public void subValidate() {
-            if (questionType.equals(QuestionType.choice)) {
-                if (optionDefaultTexts == null || optionDefaultTexts.length < 2) {
-                    throw new ValidateException("选择题的选项至少要有2项!");
-                }
-            } else if (questionType.equals(QuestionType.compound)) {
-                throw new ValidateException("子问题不能是复合题!");
-            }
-        }
     }
 
     @Data

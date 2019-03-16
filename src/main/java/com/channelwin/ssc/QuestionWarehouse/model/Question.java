@@ -67,7 +67,7 @@ public class Question extends Validatable {
         }
     }
 
-    public String getTitleDefaultText2() {
+    public String gainTitleDefaultText() {
         return title.getDefaultText();
     }
 

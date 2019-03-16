@@ -57,5 +57,16 @@ public class CompoundQuestion extends Question {
         if (maxNum < minNum) {
             throw new ValidateException("maxNum不能小于minNum!");
         }
+
+        if (questions.size() < 1) {
+            throw new ValidateException("复合题的子问题至少要有1项!");
+        }
+
+        for (Question item : questions) {
+            if (item instanceof CompoundQuestion) {
+                throw new ValidateException("子问题不能是复合题!");
+            }
+            item.validate();
+        }
     }
 }

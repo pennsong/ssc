@@ -45,10 +45,10 @@ public class ValidateRule {
     private ValidateRuleType validateRuleType;
 
     public ValidateRule(String validateRule) {
-        String singleRulePatternString = "([^()]+)";
+        String singleRulePatternString = "^([^()]+)$";
         Pattern singleRulePattern = Pattern.compile(singleRulePatternString);
 
-        String compoundRulePatternString = "([^()]+)\\((.*)\\)";
+        String compoundRulePatternString = "^([^()]+)\\((.*)\\)$";
         Pattern compoundRulePattern = Pattern.compile(compoundRulePatternString);
 
         Matcher singleMatcher = singleRulePattern.matcher(validateRule);
@@ -127,7 +127,7 @@ public class ValidateRule {
 
             // values要有对应项目
             CompoundQuestion compoundQuestion = (CompoundQuestion) question;
-            Stream<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.getTitleDefaultText2());
+            Stream<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.gainTitleDefaultText());
 
             for (String value : valuesList) {
                 if (titles.noneMatch(text -> text.equals(value))) {

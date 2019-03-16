@@ -1,5 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -22,5 +23,13 @@ public class ChoiceQuestion extends Question {
         super(null, title, seq, questionType, category, compoundItem, fitRule, validateRules, compoundQuestion);
         this.options = options;
         this.multiple = multiple;
+    }
+
+    @Override
+    public void validate() {
+        super.validate();
+        if (options.size() < 2) {
+            throw new ValidateException("选择题的选项至少要有2项!");
+        }
     }
 }

@@ -101,6 +101,9 @@ public class FactoryService {
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText, Category category, Double seq, String fitRule, List<ValidateRule> validateRules) {
         CompletionQuestion question = createCompletionQuestion(titleDefaultText, category, seq);
         question.setFitRule(fitRule);
+        if (validateRules == null) {
+            validateRules = new ArrayList<ValidateRule>();
+        }
         question.addValidateRules(validateRules);
 
         return question;
@@ -130,6 +133,9 @@ public class FactoryService {
     public static JudgementQuestion createJudgementQuestion(String titleDefaultText, Category category, Double seq, String fitRule, List<ValidateRule> validateRules) {
         JudgementQuestion question = createJudgementQuestion(titleDefaultText, category, seq);
         question.setFitRule(fitRule);
+        if (validateRules == null) {
+            validateRules = new ArrayList<ValidateRule>();
+        }
         question.addValidateRules(validateRules);
 
         return question;
@@ -161,6 +167,9 @@ public class FactoryService {
     public static ChoiceQuestion createChoiceQuestion(String titleDefaultText, Category category, String fitRule, List<ValidateRule> validateRules, Double seq, String... options) {
         ChoiceQuestion question = createChoiceQuestion(titleDefaultText, category, seq, options);
         question.setFitRule(fitRule);
+        if (validateRules == null) {
+            validateRules = new ArrayList<ValidateRule>();
+        }
         question.addValidateRules(validateRules);
 
         return question;
@@ -169,13 +178,18 @@ public class FactoryService {
     // 复合题
     public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions) {
         MultiLang title = createMuliLang(titleDefaultText);
-
+        if (questions == null) {
+            questions = new ArrayList<Question>();
+        }
         CompoundQuestion question = new CompoundQuestion(1, 10, questions, title, 0.0, QuestionType.compound, category, null, new ArrayList<ValidateRule>());
 
         return question;
     }
 
     public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions, Double seq) {
+        if (questions == null) {
+            questions = new ArrayList<Question>();
+        }
         CompoundQuestion question = createCompoundQuestion(titleDefaultText, category, questions);
         question.setSeq(seq);
 
@@ -183,6 +197,9 @@ public class FactoryService {
     }
 
     public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions, Double seq, Integer minNum, Integer maxNum) {
+        if (questions == null) {
+            questions = new ArrayList<Question>();
+        }
         CompoundQuestion question = createCompoundQuestion(titleDefaultText, category, questions, seq);
         question.setMinNum(minNum);
         question.setMaxNum(maxNum);
@@ -191,10 +208,16 @@ public class FactoryService {
     }
 
     public static CompoundQuestion createCompoundQuestion(String titleDefaultText, Category category, List<Question> questions, Double seq, Integer minNum, Integer maxNum, String fitRule, List<ValidateRule> validateRules) {
+        if (questions == null) {
+            questions = new ArrayList<Question>();
+        }
         CompoundQuestion question = createCompoundQuestion(titleDefaultText, category, questions, seq);
         question.setMinNum(minNum);
         question.setMaxNum(maxNum);
         question.setFitRule(fitRule);
+        if (validateRules == null) {
+            validateRules = new ArrayList<ValidateRule>();
+        }
         question.addValidateRules(validateRules);
 
         return question;
@@ -222,6 +245,5 @@ public class FactoryService {
                 throw new ValidateException("错误的问题类型!");
         }
     }
-
     // end 问题
 }
