@@ -3,8 +3,8 @@ package com.channelwin.ssc.QuestionWarehouse.repository;
 import com.channelwin.ssc.QuestionWarehouse.model.MultiLang;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface MultiLangRepository extends CrudRepository<MultiLang, Integer> {
-    Collection<MultiLang> findByDefaultText(String defaultText);
+    List<MultiLang> findByDefaultText(String defaultText);
 }

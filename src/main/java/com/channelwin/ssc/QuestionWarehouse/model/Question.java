@@ -92,7 +92,10 @@ public class Question extends Validatable {
     }
 
     public void addValidateRules(List<ValidateRule> validateRules) {
-        this.validateRules.addAll(validateRules);
+        for (ValidateRule item: validateRules) {
+            item.setQuestion(this);
+            this.validateRules.add(item);
+        }
     }
 
     @Override

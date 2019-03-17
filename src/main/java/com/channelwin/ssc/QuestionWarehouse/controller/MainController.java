@@ -27,11 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -62,12 +58,12 @@ public class MainController {
 
     // MultiLang
     @RequestMapping(path = "/multiLang/{id}", method = RequestMethod.PUT)
-    public void editMultiLang(@PathVariable int id, @RequestBody @Valid MultiLangDTO multiLangDTO, BindingResult bindingResult) {
+    public void editMultiLang(@PathVariable int id, @RequestBody @Valid MainController.MultiLangDto dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
 
-        multiLangDTO.validate();
+        dto.validate();
 
         Optional<MultiLang> optionalMultiLang = multiLangRepository.findById(id);
 
@@ -77,12 +73,9 @@ public class MainController {
 
         MultiLang multiLang = optionalMultiLang.get();
 
-        multiLang.setDefaultText(multiLangDTO.defaultText);
-        for (Map.Entry<Lang, String> item : multiLangDTO.getTranslation().entrySet()) {
+        for (Map.Entry<Lang, String> item : dto.getTranslation().entrySet()) {
             multiLang.setText(item.getKey(), item.getValue());
         }
-
-        multiLangRepository.save(multiLang);
     }
 
 
@@ -93,6 +86,8 @@ public class MainController {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
+
+        dto.validate();
 
         Category category = FactoryService.createCategory(dto.defaultText, dto.seq);
         categoryRepository.save(category);
@@ -106,11 +101,21 @@ public class MainController {
 
     // 编辑目录
     @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
-    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryEditDTO categoryEditDTO) {
-        Category category = categoryRepository.findById(id).get();
-        category.setSeq(categoryEditDTO.seq);
+    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryEditDTO dto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidateException(bindingResult.toString());
+        }
 
-        categoryRepository.save(category);
+        dto.validate();
+
+        Optional<Category> optionalCategory = categoryRepository.findById(id);
+
+        if (optionalCategory.isPresent() == false) {
+            throw new ValidateException("没有对应此id的目录!");
+        }
+
+        Category category = optionalCategory.get();
+        category.setSeq(dto.seq);
     }
 
     // 获取单个目录
@@ -133,10 +138,14 @@ public class MainController {
     // 题目
     // 添加题目
     @RequestMapping(path = "/question", method = RequestMethod.POST)
-    public void addQuestion(@Valid @RequestBody QuestionDto questionDto) {
-        questionDto.validate();
+    public void addQuestion(@Valid @RequestBody QuestionDto dto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidateException(bindingResult.toString());
+        }
 
-        Question question = factoryService.createQuestionFromQuestionDto(questionDto);
+        dto.validate();
+
+        Question question = factoryService.createQuestionFromQuestionDto(dto);
         questionRepository.save(question);
     }
 
@@ -148,7 +157,13 @@ public class MainController {
 
     // 编辑题目
     @RequestMapping(path = "/question/{id}", method = RequestMethod.PUT)
-    public void editQuestion(@PathVariable int id, @Valid @RequestBody QuestionEditDto questionEditDto) {
+    public void editQuestion(@PathVariable int id, @Valid @RequestBody QuestionEditDto dto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ValidateException(bindingResult.toString());
+        }
+
+        dto.validate();
+
         Optional<Question> optionalQuestion = questionRepository.findById(id);
 
         if (optionalQuestion.isPresent() == false) {
@@ -157,9 +172,9 @@ public class MainController {
 
         Question question = optionalQuestion.get();
 
-        question.setSeq(questionEditDto.getSeq());
+        question.setSeq(dto.getSeq());
 
-        Optional<Category> optionalCategory = categoryRepository.findById(questionEditDto.getCategoryId());
+        Optional<Category> optionalCategory = categoryRepository.findById(dto.getCategoryId());
 
         if (optionalCategory.isPresent() == false) {
             throw new ValidateException("没有对应此id的目录!");
@@ -168,8 +183,6 @@ public class MainController {
         Category category = optionalCategory.get();
 
         question.setCategory(category);
-
-        questionRepository.save(question);
     }
 
     // 获取单个题目
@@ -341,8 +354,10 @@ public class MainController {
                 throw new ValidateException("目录id不能为空!");
             }
 
-            for (QuestionEditDto item : questionEditDtos) {
-                item.subValidate();
+            if (questionEditDtos != null) {
+                for (QuestionEditDto item : questionEditDtos) {
+                    item.subValidate();
+                }
             }
         }
 
@@ -356,13 +371,18 @@ public class MainController {
     @Data
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor
-    public static class MultiLangDTO extends Dto {
-        @NotNull
-        @Size(min = 1, max = 500)
-        String defaultText;
-
+    public static class MultiLangDto extends Dto {
         @NotNull
         Map<Lang, String> translation;
+
+        public MultiLangDto(String... translationTexts) {
+            this.translation = new HashMap<>();
+
+            for (String item: translationTexts) {
+                String[] stringArray = item.split(":");
+                this.translation.put(Lang.valueOf(stringArray[0].trim()), stringArray[1].trim());
+            }
+        }
 
         @Override
         public void validate() {

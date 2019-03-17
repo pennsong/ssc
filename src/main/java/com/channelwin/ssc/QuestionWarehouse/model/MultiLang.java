@@ -17,6 +17,7 @@ import java.util.Map;
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue
+    @Getter
     private Integer id;
 
     @Getter

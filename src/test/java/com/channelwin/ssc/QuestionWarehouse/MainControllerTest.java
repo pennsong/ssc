@@ -3,6 +3,7 @@ package com.channelwin.ssc.QuestionWarehouse;
 import com.channelwin.ssc.QuestionWarehouse.controller.MainController;
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
+import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
@@ -36,6 +37,9 @@ public class MainControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private MultiLangRepository multiLangRepository;
+
+    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
@@ -47,8 +51,35 @@ public class MainControllerTest {
 
     private String questionBaseUrl = baseUrl + "/question";
 
+    private String multiLangBaseUrl = baseUrl + "/multiLang";
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    // MultiLang
+    @Test
+    public void editMultiLang() throws Exception {
+        MultiLang multiLang = multiLangRepository.findByDefaultText("目录1").get(0);
+        Integer id = multiLang.getId();
+
+        MainController.MultiLangDto multiLangDto = new MainController.MultiLangDto("PY: PY Changed", "EN: EN Changed");
+
+        mockMvc.perform(MockMvcRequestBuilders.put(multiLangBaseUrl + "/" + id)
+                .content(objectMapper.writeValueAsString(multiLangDto))
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        multiLang = multiLangRepository.findById(id).get();
+
+        String target = "{\n" +
+                "    \"defaultText\": \"目录1\",\n" +
+                "    \"translation\": {\n" +
+                "        \"PY\": \"PY Changed\",\n" +
+                "        \"EN\": \"EN Changed\"\n" +
+                "    }\n" +
+                "}";
+        JSONAssert.assertEquals(target, objectMapper.writeValueAsString(multiLang), false);
+    }
 
     // 目录
     // 添加目录
@@ -236,12 +267,12 @@ public class MainControllerTest {
                 "    \"validateRules\": [\n" +
                 "        {\n" +
                 "            \"name\": \"复合一元函数1\",\n" +
-                "            \"values\": \"子填空题t1\",\n" +
+                "            \"serializedValues\": \"子填空题t1\",\n" +
                 "            \"validateRuleType\": \"compoundSingle\"\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"name\": \"复合一元函数2\",\n" +
-                "            \"values\": \"子填空题t1\",\n" +
+                "            \"serializedValues\": \"子填空题t1\",\n" +
                 "            \"validateRuleType\": \"compoundSingle\"\n" +
                 "        }\n" +
                 "    ],\n" +
@@ -257,12 +288,12 @@ public class MainControllerTest {
                 "            \"validateRules\": [\n" +
                 "                {\n" +
                 "                    \"name\": \"一元函数1\",\n" +
-                "                    \"values\": \"\",\n" +
+                "                    \"serializedValues\": \"\",\n" +
                 "                    \"validateRuleType\": \"single\"\n" +
                 "                },\n" +
                 "                {\n" +
                 "                    \"name\": \"一元函数2\",\n" +
-                "                    \"values\": \"\",\n" +
+                "                    \"serializedValues\": \"\",\n" +
                 "                    \"validateRuleType\": \"single\"\n" +
                 "                }\n" +
                 "            ]\n" +
