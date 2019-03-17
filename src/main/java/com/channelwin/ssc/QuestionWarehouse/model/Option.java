@@ -1,7 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -13,7 +12,6 @@ import javax.validation.constraints.NotNull;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Option extends Validatable {
     @NotNull
     @Min(0)
@@ -26,4 +24,10 @@ public class Option extends Validatable {
     @NotNull
     @Setter
     private Integer score;
+
+    Option(Integer key, MultiLang value, Integer score) {
+        this.key = key;
+        this.value = value;
+        this.score = score;
+    }
 }

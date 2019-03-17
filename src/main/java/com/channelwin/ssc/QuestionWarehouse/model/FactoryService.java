@@ -5,10 +5,11 @@ import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.ValidateException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.channelwin.ssc.QuestionWarehouse.model.ValidateRule.*;
 
 @Service
 public class FactoryService {
@@ -35,7 +36,7 @@ public class FactoryService {
 
     // MultiLang
     public static MultiLang createMuliLang(String defaultText) {
-        return new MultiLang(null, defaultText, new HashMap<>());
+        return new MultiLang(defaultText, new HashMap<>());
     }
 
     // 选项
@@ -66,7 +67,7 @@ public class FactoryService {
     // 目录
     public static Category createCategory(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);
-        return new Category(null, title, 0.0);
+        return new Category(title, 0.0);
     }
 
     public static Category createCategory(String titleDefaultText, Double seq) {
@@ -77,6 +78,63 @@ public class FactoryService {
     }
 
     // 问题
+    // ValidateRule
+    public static ValidateRule createValidateRule(String validateRule) {
+        String name;
+        String serializedValues;
+        ValidateRuleType validateRuleType;
+
+        String singleRulePatternString = "^([^()]+)$";
+        Pattern singleRulePattern = Pattern.compile(singleRulePatternString);
+
+        String compoundRulePatternString = "^([^()]+)\\((.*)\\)$";
+        Pattern compoundRulePattern = Pattern.compile(compoundRulePatternString);
+
+        Matcher singleMatcher = singleRulePattern.matcher(validateRule);
+
+        Matcher compoundMatcher = compoundRulePattern.matcher(validateRule);
+
+        serializedValues = "";
+
+        if (singleMatcher.find()) {
+            // 一元函数
+            name = singleMatcher.group(1);
+            validateRuleType = ValidateRuleType.single;
+
+            if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(name))) {
+                throw new ValidateException("错误的校验函数名称!");
+            }
+        } else if (compoundMatcher.find()) {
+            // 复合函数
+            name = compoundMatcher.group(1);
+            String valuesString = compoundMatcher.group(2);
+            String[] valuesArray = valuesString.split(",");
+
+            // 判断是几元函数
+            if (Arrays.stream(compoundSingleCandidates).anyMatch(item -> item.equals(name))) {
+                validateRuleType = ValidateRuleType.compoundSingle;
+            } else if (Arrays.stream(compoundTwoCandidates).anyMatch(item -> item.equals(name))) {
+                validateRuleType = ValidateRuleType.compoundTwo;
+            } else if (Arrays.stream(compoundMultiCandidates).anyMatch(item -> item.equals(name))) {
+                validateRuleType = ValidateRuleType.compoundMulti;
+            } else {
+                throw new ValidateException("错误的校验函数名称!");
+            }
+
+            // 取得参数list
+            for (String item : valuesArray) {
+                serializedValues += item.trim();
+                serializedValues += ",";
+            }
+            serializedValues = serializedValues.substring(0, serializedValues.length() - 1);
+        } else {
+            throw new ValidateException("校验函数格式不正确!");
+        }
+
+        return new ValidateRule(name, serializedValues, validateRuleType, null);
+    }
+    // end ValidateRule
+
     // 填空题
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);

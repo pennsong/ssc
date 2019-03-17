@@ -316,7 +316,7 @@ public class MainController {
             List<ValidateRule> result = new ArrayList<>();
             if (validateRules != null ) {
                 for (String item : validateRules) {
-                    result.add(new ValidateRule(item));
+                    result.add(FactoryService.createValidateRule(item));
                 }
             }
 

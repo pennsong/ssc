@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,7 +21,10 @@ public class ChoiceQuestion extends Question {
     private Boolean multiple;
 
     ChoiceQuestion(List<Option> options, Boolean multiple, MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
-        super(null, title, seq, questionType, category, compoundItem, fitRule, validateRules, compoundQuestion);
+        super(title, seq, questionType, category, compoundItem, fitRule, validateRules, compoundQuestion);
+        if (options == null) {
+            this.options = new ArrayList<>();
+        }
         this.options = options;
         this.multiple = multiple;
     }

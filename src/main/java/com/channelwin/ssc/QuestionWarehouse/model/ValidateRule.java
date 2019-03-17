@@ -1,36 +1,41 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.ValidateException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Parent;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ValidateRule {
-    private static final String[] singleCandidates = new String[]{
+public class ValidateRule extends Validatable{
+    public static final String[] singleCandidates = new String[]{
             "一元函数1",
             "一元函数2"
     };
 
-    private static final String[] compoundSingleCandidates = new String[]{
+    public static final String[] compoundSingleCandidates = new String[]{
             "复合一元函数1",
             "复合一元函数2"
     };
 
-    private static final String[] compoundTwoCandidates = new String[]{
+    public static final String[] compoundTwoCandidates = new String[]{
             "复合二元函数1",
             "复合二元函数2"
     };
 
-    private static final String[] compoundMultiCandidates = new String[]{
+    public static final String[] compoundMultiCandidates = new String[]{
             "复合多元函数1",
             "复合多元函数2"
     };
@@ -39,62 +44,31 @@ public class ValidateRule {
     private String name;
 
     @NotNull
-    private String values;
+    private String serializedValues;
 
     @NotNull
     private ValidateRuleType validateRuleType;
 
-    public ValidateRule(String validateRule) {
-        String singleRulePatternString = "^([^()]+)$";
-        Pattern singleRulePattern = Pattern.compile(singleRulePatternString);
+    @Parent
+    @JsonIgnore
+    @Setter
+    @Getter
+    private Question question;
 
-        String compoundRulePatternString = "^([^()]+)\\((.*)\\)$";
-        Pattern compoundRulePattern = Pattern.compile(compoundRulePatternString);
-
-        Matcher singleMatcher = singleRulePattern.matcher(validateRule);
-
-        Matcher compoundMatcher = compoundRulePattern.matcher(validateRule);
-
-        this.values = "";
-
-        if (singleMatcher.find()) {
-            // 一元函数
-            this.name = singleMatcher.group(1);
-            this.validateRuleType = ValidateRuleType.single;
-
-            if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(this.name))) {
-                throw new ValidateException("错误的校验函数名称!");
-            }
-        } else if (compoundMatcher.find()) {
-            // 复合函数
-            this.name = compoundMatcher.group(1);
-            String valuesString = compoundMatcher.group(2);
-            String[] valuesArray = valuesString.split(",");
-
-            // 判断是几元函数
-            if (Arrays.stream(compoundSingleCandidates).anyMatch(item -> item.equals(this.name))) {
-                this.validateRuleType = ValidateRuleType.compoundSingle;
-            } else if (Arrays.stream(compoundTwoCandidates).anyMatch(item -> item.equals(this.name))) {
-                this.validateRuleType = ValidateRuleType.compoundTwo;
-            } else if (Arrays.stream(compoundMultiCandidates).anyMatch(item -> item.equals(this.name))) {
-                this.validateRuleType = ValidateRuleType.compoundMulti;
-            } else {
-                throw new ValidateException("错误的校验函数名称!");
-            }
-
-            // 取得参数list
-            for (String item : valuesArray) {
-                values += item.trim();
-                values += ",";
-            }
-            values = values.substring(0, values.length() - 1);
-        } else {
-            throw new ValidateException("校验函数格式不正确!");
-        }
+    ValidateRule(String name, String serializedValues, ValidateRuleType validateRuleType, Question question) {
+        this.name = name;
+        this.serializedValues = serializedValues;
+        this.validateRuleType = validateRuleType;
+        this.question = question;
     }
 
-    public void validateToQuestion(Question question) {
+    @Override
+    public void validate() {
         if (validateRuleType == ValidateRuleType.single) {
+            if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(name))) {
+                throw new ValidateException("错误的校验函数名称!");
+            }
+
             if (!(question instanceof CompletionQuestion)) {
                 throw new ValidateException("'" + name + "'" + " 只能用于填空题!");
             }
@@ -104,7 +78,7 @@ public class ValidateRule {
             }
 
             Set<String> testSet = new HashSet<>();
-            List<String> valuesList = Arrays.asList(values.split(","));
+            List<String> valuesList = Arrays.asList(serializedValues.split(","));
             testSet.addAll(valuesList);
 
             if (testSet.size() != valuesList.size()) {
@@ -113,13 +87,25 @@ public class ValidateRule {
 
             if (validateRuleType == ValidateRuleType.compoundSingle) {
                 if (valuesList.size() != 1) {
+                    if (Arrays.stream(compoundSingleCandidates).noneMatch(item -> item.equals(name))) {
+                        throw new ValidateException("错误的校验函数名称!");
+                    }
+
                     throw new ValidateException("一元函数的参数只能是一位!");
                 }
             } else if (validateRuleType == ValidateRuleType.compoundTwo) {
                 if (valuesList.size() != 2) {
+                    if (Arrays.stream(compoundTwoCandidates).noneMatch(item -> item.equals(name))) {
+                        throw new ValidateException("错误的校验函数名称!");
+                    }
+
                     throw new ValidateException("二元函数的参数只能是两位!");
                 }
             } else if (validateRuleType == ValidateRuleType.compoundMulti) {
+                if (Arrays.stream(compoundMultiCandidates).noneMatch(item -> item.equals(name))) {
+                    throw new ValidateException("错误的校验函数名称!");
+                }
+
                 if (valuesList.size() == 0) {
                     throw new ValidateException("必须要有参数!");
                 }

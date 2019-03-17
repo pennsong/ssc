@@ -8,12 +8,12 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Question extends Validatable {
     @Id
     @GeneratedValue
@@ -51,6 +51,26 @@ public class Question extends Validatable {
     @JsonIgnore
     private CompoundQuestion compoundQuestion;
 
+    Question(MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
+        this.title = title;
+        this.seq = seq;
+        this.questionType = questionType;
+        this.category = category;
+        this.compoundItem = compoundItem;
+        this.fitRule = fitRule;
+
+        this.validateRules = new ArrayList<>();
+
+        if (validateRules != null) {
+            for (ValidateRule item: validateRules) {
+                item.setQuestion(this);
+                this.validateRules.add(item);
+            }
+        }
+
+        this.compoundQuestion = compoundQuestion;
+    }
+
     public void setCompoundQuestion(CompoundQuestion compoundQuestion) {
         if (compoundQuestion == null) {
             throw new RuntimeException("所属复合问题不能为空!");
@@ -78,7 +98,7 @@ public class Question extends Validatable {
     @Override
     public void validate() {
         for (ValidateRule item: validateRules) {
-            item.validateToQuestion(this);
+            item.validate();
         }
     }
 

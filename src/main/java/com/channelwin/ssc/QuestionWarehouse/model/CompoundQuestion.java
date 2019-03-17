@@ -32,16 +32,13 @@ public class CompoundQuestion extends Question {
     private List<Question> questions;
 
     CompoundQuestion(Integer minNum, Integer maxNum, List<Question> questions, MultiLang title, Double seq, QuestionType questionType, Category category, String fitRule, List<ValidateRule> validateRules) {
-        super(null, title, seq, questionType, category, false, fitRule, validateRules, null);
+        super(title, seq, questionType, category, false, fitRule, validateRules, null);
         this.minNum = minNum;
         this.maxNum = maxNum;
 
         this.questions = new ArrayList<>();
 
         for (Question item: questions) {
-            if (item instanceof CompoundQuestion) {
-                throw new ValidateException("子问题不能是复合题!");
-            }
             // 子问题从属于复合题的目录
             item.setCategory(null);
             item.setCompoundQuestion(this);

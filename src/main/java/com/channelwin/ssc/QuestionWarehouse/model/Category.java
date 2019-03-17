@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class Category extends Validatable {
     @Id
     @GeneratedValue
@@ -23,6 +22,11 @@ public class Category extends Validatable {
     @NotNull
     @Min(0)
     private Double seq;
+
+    Category(MultiLang title, Double seq) {
+        this.title = title;
+        this.seq = seq;
+    }
 
     public void setDefaultText(String defaultText) {
         this.title.setDefaultText(defaultText);

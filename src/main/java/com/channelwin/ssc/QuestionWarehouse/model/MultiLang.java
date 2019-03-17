@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue
@@ -28,6 +27,15 @@ public class MultiLang extends Validatable {
     @ElementCollection
     @NotNull
     private Map<Lang, String> translation = new HashMap<>();
+
+    MultiLang(String defaultText, Map<Lang, String> translation) {
+        this.defaultText = defaultText;
+        if (translation == null) {
+            this.translation = new HashMap<>();
+        } else {
+            this.translation = translation;
+        }
+    }
 
     public void setText(Lang lang, String text) {
         translation.put(lang, text);
