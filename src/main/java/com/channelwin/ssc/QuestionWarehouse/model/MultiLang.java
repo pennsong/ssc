@@ -6,6 +6,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.HashMap;
@@ -20,8 +21,8 @@ public class MultiLang extends Validatable {
 
     @Getter
     @Setter
-    @NotNull
-    @Size(min = 1, max = 100)
+    @NotBlank
+    @Size(max = 100)
     private String defaultText;
 
     @ElementCollection
