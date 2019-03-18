@@ -86,7 +86,7 @@ public class FactoryService {
         String singleRulePatternString = "^([^()]+)$";
         Pattern singleRulePattern = Pattern.compile(singleRulePatternString);
 
-        String compoundRulePatternString = "^([^()]+)\\((.*)\\)$";
+        String compoundRulePatternString = "^([^()]+)\\((.+)\\)$";
         Pattern compoundRulePattern = Pattern.compile(compoundRulePatternString);
 
         Matcher singleMatcher = singleRulePattern.matcher(validateRule);
@@ -170,7 +170,7 @@ public class FactoryService {
     public static JudgementQuestion createJudgementQuestion(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);
 
-        return new JudgementQuestion(title, 0.0, QuestionType.judgement, null, false, null, new ArrayList<ValidateRule>(), null);
+        return new JudgementQuestion(title, 0.0, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static JudgementQuestion createJudgementQuestion(String titleDefaultText, Category category) {
@@ -204,7 +204,7 @@ public class FactoryService {
 
         List<Option> optionList = createOptionList(options);
 
-        return new ChoiceQuestion(optionList, false, title, 0.0, QuestionType.choice, null, false, null, new ArrayList<ValidateRule>(), null);
+        return new ChoiceQuestion(optionList, false, title, 0.0, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static ChoiceQuestion createChoiceQuestion(String titleDefaultText, Category category, String... options) {
@@ -238,7 +238,7 @@ public class FactoryService {
         if (questions == null) {
             questions = new ArrayList<Question>();
         }
-        CompoundQuestion question = new CompoundQuestion(1, 10, questions, title, 0.0, QuestionType.compound, category, null, new ArrayList<ValidateRule>());
+        CompoundQuestion question = new CompoundQuestion(1, 10, questions, title, 0.0, category, null, new ArrayList<ValidateRule>());
 
         return question;
     }

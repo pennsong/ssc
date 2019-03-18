@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -115,10 +115,10 @@ public class ValidateRule extends Validatable{
 
             // values要有对应项目
             CompoundQuestion compoundQuestion = (CompoundQuestion) question;
-            Stream<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.gainTitleDefaultText());
+            List<String> titles = compoundQuestion.getQuestions().stream().map(subQuestion -> subQuestion.gainTitleDefaultText()).collect(Collectors.toList());
 
             for (String value : valuesList) {
-                if (titles.noneMatch(text -> text.equals(value))) {
+                if (titles.stream().noneMatch(text -> text.equals(value))) {
                     throw new ValidateException("子问题中没有" + value + "这一项!");
                 }
             }

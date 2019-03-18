@@ -22,12 +22,13 @@ public class ChoiceQuestion extends Question {
     @NotNull
     private Boolean multiple;
 
-    ChoiceQuestion(List<Option> options, Boolean multiple, MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
-        super(title, seq, questionType, category, compoundItem, fitRule, validateRules, compoundQuestion);
+    ChoiceQuestion(List<Option> options, Boolean multiple, MultiLang title, Double seq, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
+        super(title, seq, QuestionType.choice, category, compoundItem, fitRule, validateRules, compoundQuestion);
         if (options == null) {
             this.options = new ArrayList<>();
+        } else {
+            this.options = options;
         }
-        this.options = options;
         this.multiple = multiple;
     }
 

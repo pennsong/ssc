@@ -33,8 +33,8 @@ public class CompoundQuestion extends Question {
     @Getter
     private List<Question> questions;
 
-    CompoundQuestion(Integer minNum, Integer maxNum, List<Question> questions, MultiLang title, Double seq, QuestionType questionType, Category category, String fitRule, List<ValidateRule> validateRules) {
-        super(title, seq, questionType, category, false, fitRule, validateRules, null);
+    CompoundQuestion(Integer minNum, Integer maxNum, List<Question> questions, MultiLang title, Double seq, Category category, String fitRule, List<ValidateRule> validateRules) {
+        super(title, seq, QuestionType.compound, category, false, fitRule, validateRules, null);
         this.minNum = minNum;
         this.maxNum = maxNum;
 
