@@ -99,10 +99,6 @@ public class FactoryService {
             // 一元函数
             name = singleMatcher.group(1);
             validateRuleType = ValidateRuleType.single;
-
-            if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(name))) {
-                throw new ValidateException("错误的校验函数名称!");
-            }
         } else if (compoundMatcher.find()) {
             // 复合函数
             name = compoundMatcher.group(1);
@@ -117,7 +113,7 @@ public class FactoryService {
             } else if (Arrays.stream(compoundMultiCandidates).anyMatch(item -> item.equals(name))) {
                 validateRuleType = ValidateRuleType.compoundMulti;
             } else {
-                throw new ValidateException("错误的校验函数名称!");
+                validateRuleType = ValidateRuleType.unknown;
             }
 
             // 取得参数list

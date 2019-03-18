@@ -197,19 +197,16 @@ public class QuestionTest {
     // 不能带校验规则的题目带校验规则
     @Test
     public void 判断题创建_失败_带校验规则() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            JudgementQuestion judgementQuestion = new JudgementQuestion(judgementQuestionLabel,
-                    1.0,
-                    null,
-                    false,
-                    null,
-                    Arrays.asList(createValidateRule("一元函数1"), createValidateRule("一元函数2")),
-                    null
-            );
-            Set<ConstraintViolation<JudgementQuestion>> violations = validator.validate(judgementQuestion);
-        });
-
-        assertEquals(true, exception.getMessage().contains("只能用于填空题"));
+        JudgementQuestion judgementQuestion = new JudgementQuestion(judgementQuestionLabel,
+                1.0,
+                null,
+                false,
+                null,
+                Arrays.asList(createValidateRule("一元函数1"), createValidateRule("一元函数2")),
+                null
+        );
+        Set<ConstraintViolation<JudgementQuestion>> violations = validator.validate(judgementQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("只能用于填空题"));
     }
 
     @Test
@@ -234,81 +231,77 @@ public class QuestionTest {
     // 错误的函数名
     @Test
     public void 填空题创建_失败_带NONE函数() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompletionQuestion completionQuestion = new CompletionQuestion(completionQuestionLabel,
-                    1.0,
-                    category,
-                    false,
-                    null,
-                    Arrays.asList(createValidateRule("NONE函数")),
-                    null
-            );
-        });
+        CompletionQuestion completionQuestion = new CompletionQuestion(completionQuestionLabel,
+                1.0,
+                category,
+                false,
+                null,
+                Arrays.asList(createValidateRule("NONE函数")),
+                null
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompletionQuestion>> violations = validator.validate(completionQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
     }
 
     // 复合 带 NONE函数(复合填空1)
     @Test
     public void 复合题创建_失败_带NONE函数_1() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompoundQuestion compoundQuestion = new CompoundQuestion(
-                    1,
-                    2,
-                    questionList,
-                    compoundQuestionLabel,
-                    1.0,
-                    category,
-                    null,
-                    Arrays.asList(
-                            createValidateRule("NONE函数(复合填空题t1)")
-                    )
-            );
-        });
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("NONE函数(复合填空题t1)")
+                )
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
     }
 
     // 复合 带 NONE函数(复合填空1, 复合判断1)
     @Test
     public void 复合题创建_失败_带NONE函数_2() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompoundQuestion compoundQuestion = new CompoundQuestion(
-                    1,
-                    2,
-                    questionList,
-                    compoundQuestionLabel,
-                    1.0,
-                    category,
-                    null,
-                    Arrays.asList(
-                            createValidateRule("NONE函数(复合填空题t1, 复合判断1)")
-                    )
-            );
-        });
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("NONE函数(复合填空题t1, 复合判断1)")
+                )
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
     }
 
     // 复合 带 NONE函数(复合填空1, 复合判断1, 复合选择1)
     @Test
     public void 复合题创建_失败_带NONE函数_3() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompoundQuestion compoundQuestion = new CompoundQuestion(
-                    1,
-                    2,
-                    questionList,
-                    compoundQuestionLabel,
-                    1.0,
-                    category,
-                    null,
-                    Arrays.asList(
-                            createValidateRule("NONE函数(复合填空题t1, 复合判断1, 复合选择1)")
-                    )
-            );
-        });
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("NONE函数(复合填空题t1, 复合判断1, 复合选择1)")
+                )
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
     }
 
     // 复合 带 一元函数
@@ -337,44 +330,43 @@ public class QuestionTest {
     // 填空 带 一元函数(a)
     @Test
     public void 填空题创建_带_一元函数() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompletionQuestion completionQuestion = new CompletionQuestion(completionQuestionLabel,
-                    1.0,
-                    category,
-                    false,
-                    null,
-                    Arrays.asList(createValidateRule("一元函数1(a)")),
-                    null
-            );
-        });
+        CompletionQuestion completionQuestion = new CompletionQuestion(completionQuestionLabel,
+                1.0,
+                category,
+                false,
+                null,
+                Arrays.asList(createValidateRule("一元函数1(a)")),
+                null
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompletionQuestion>> violations = validator.validate(completionQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
+
     }
 
     // 复合 带 复合一元函数
     @Test
-    public void 复合题创建_失败_复合一元函数_1() {
-        Exception exception = assertThrows(ValidateException.class, () -> {
-            CompoundQuestion compoundQuestion = new CompoundQuestion(
-                    1,
-                    2,
-                    questionList,
-                    compoundQuestionLabel,
-                    1.0,
-                    category,
-                    null,
-                    Arrays.asList(
-                            createValidateRule("复合一元函数1")
-                    )
-            );
-        });
+    public void 复合题创建_失败_带_复合一元函数_1() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合一元函数1")
+                )
+        );
 
-        assertEquals(true, exception.getMessage().contains("错误的校验函数名称"));
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
     }
 
     // 复合 带 复合一元函数()
     @Test
-    public void 复合题创建_失败_复合一元函数_2() {
+    public void 复合题创建_失败_带_复合一元函数_2() {
         Exception exception = assertThrows(ValidateException.class, () -> {
             CompoundQuestion compoundQuestion = new CompoundQuestion(
                     1,
@@ -395,7 +387,7 @@ public class QuestionTest {
 
     // 复合 带 复合一元函数(复合填空1, 复合判断1)
     @Test
-    public void 复合题创建_失败_复合一元函数_3() {
+    public void 复合题创建_失败_带_复合一元函数_3() {
         CompoundQuestion compoundQuestion = new CompoundQuestion(
                 1,
                 2,
@@ -414,43 +406,211 @@ public class QuestionTest {
     }
 
     // 复合 带 复合二元函数
-//    @Test
-//    public void 复合题创建_失败_复合二元函数_1() {
-//        CompoundQuestion compoundQuestion = new CompoundQuestion(
-//                1,
-//                2,
-//                questionList,
-//                compoundQuestionLabel,
-//                1.0,
-//                category,
-//                null,
-//                Arrays.asList(
-//                        createValidateRule("复合二元函数1")
-//                )
-//        );
-//
-//        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
-//        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("一元函数的参数只能是一位"));
-//    }
+    @Test
+    public void 复合题创建_失败_带_复合二元函数_1() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合二元函数1")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
+    }
 
     // 复合 带 复合二元函数()
+    @Test
+    public void 复合题创建_失败_带_复合二元函数_2() {
+        Exception exception = assertThrows(ValidateException.class, () -> {
+            CompoundQuestion compoundQuestion = new CompoundQuestion(
+                    1,
+                    2,
+                    questionList,
+                    compoundQuestionLabel,
+                    1.0,
+                    category,
+                    null,
+                    Arrays.asList(
+                            createValidateRule("复合二元函数1()")
+                    )
+            );
+        });
+
+        assertEquals(true, exception.getMessage().contains("校验函数格式不正确"));
+    }
 
     // 复合 带 复合二元函数(复合填空1, 复合判断1, 复合选择1)
+    @Test
+    public void 复合题创建_失败_带_复合二元函数_3() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合二元函数1(复合填空1, 复合判断1, 复合选择1)")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("二元函数的参数只能是两位"));
+    }
 
     // 复合 带 复合多元函数
+    @Test
+    public void 复合题创建_失败_带_复合多元函数_1() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合多元函数1")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("错误的校验函数名称"));
+    }
 
     // 复合 带 复合多元函数()
+    @Test
+    public void 复合题创建_失败_带_复合多元函数_2() {
+        Exception exception = assertThrows(ValidateException.class, () -> {
+            CompoundQuestion compoundQuestion = new CompoundQuestion(
+                    1,
+                    2,
+                    questionList,
+                    compoundQuestionLabel,
+                    1.0,
+                    category,
+                    null,
+                    Arrays.asList(
+                            createValidateRule("复合多元函数1()")
+                    )
+            );
+        });
+
+        assertEquals(true, exception.getMessage().contains("校验函数格式不正确"));
+    }
 
     // end 错误的参数个数
 
 
-//    错误的参数名称:
-//    复合 带 复合一元函数(NONE子问题)
-//    复合 带 复合二元函数(复合填空1, NONE子问题)
-//    复合 带 复合多元函数(NONE子问题)
-//
-//    重复的参数名称:
-//    复合 带 复合二元函数(复合填空1, 复合填空1)
-//    复合 带 复合多元函数(复合填空1, 复合填空1)
+    // 错误的参数名称
+    // 复合 带 复合一元函数(NONE子问题)
+    @Test
+    public void 复合题创建_失败_带_复合一元函数_错误参数_1() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合一元函数1(NONE子问题)")
+                )
+        );
 
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("子问题中没有"));
+    }
+
+    // 复合 带 复合二元函数(复合填空1, NONE子问题)
+    @Test
+    public void 复合题创建_失败_带_复合二元函数_错误参数() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合二元函数1(复合填空1, NONE子问题)")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("子问题中没有"));
+    }
+
+    // 复合 带 复合多元函数(NONE子问题)
+    @Test
+    public void 复合题创建_失败_带_复合多元函数_错误参数() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合多元函数1(NONE子问题)")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("子问题中没有"));
+    }
+    // end 错误的参数名称
+
+    // 重复的参数名称
+    // 复合 带 复合二元函数(复合填空1, 复合填空1)
+    @Test
+    public void 复合题创建_失败_带_复合二元函数_重复的参数名称() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合二元函数1(复合填空1, 复合填空1)")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("操作项目不能有重复项"));
+    }
+
+    // 复合 带 复合多元函数(复合填空1, 复合填空1)
+    @Test
+    public void 复合题创建_失败_带_复合多元函数_重复的参数名称() {
+        CompoundQuestion compoundQuestion = new CompoundQuestion(
+                1,
+                2,
+                questionList,
+                compoundQuestionLabel,
+                1.0,
+                category,
+                null,
+                Arrays.asList(
+                        createValidateRule("复合多元函数1(复合填空1, 复合填空1)")
+                )
+        );
+
+        Set<ConstraintViolation<CompoundQuestion>> violations = validator.validate(compoundQuestion);
+        assertEquals(true, violations.stream().findFirst().get().getMessage().contains("操作项目不能有重复项"));
+    }
+    // end 重复的参数名称
 }

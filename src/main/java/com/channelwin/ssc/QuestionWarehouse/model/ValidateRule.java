@@ -66,7 +66,10 @@ public class ValidateRule extends Validatable{
 
     @Override
     public void validate() {
-        if (validateRuleType == ValidateRuleType.single) {
+        if (validateRuleType == ValidateRuleType.unknown) {
+            throw new ValidateException("错误的校验函数名称!");
+        }
+        else if (validateRuleType == ValidateRuleType.single) {
             if (Arrays.stream(singleCandidates).noneMatch(item -> item.equals(name))) {
                 throw new ValidateException("错误的校验函数名称!");
             }
@@ -119,7 +122,7 @@ public class ValidateRule extends Validatable{
 
             for (String value : valuesList) {
                 if (titles.stream().noneMatch(text -> text.equals(value))) {
-                    throw new ValidateException("子问题中没有" + value + "这一项!");
+                    throw new ValidateException("子问题中没有'" + value + "'这一项!");
                 }
             }
         }
