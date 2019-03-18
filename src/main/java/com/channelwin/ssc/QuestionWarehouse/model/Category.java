@@ -1,5 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
 import lombok.*;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@TypeConstraint
 public class Category extends Validatable {
     @Id
     @GeneratedValue
@@ -30,11 +32,5 @@ public class Category extends Validatable {
 
     public void setDefaultText(String defaultText) {
         this.title.setDefaultText(defaultText);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void prePersist() {
-        this.validate();
     }
 }

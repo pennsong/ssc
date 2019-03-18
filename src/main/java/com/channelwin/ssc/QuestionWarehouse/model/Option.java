@@ -1,5 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@TypeConstraint
 public class Option extends Validatable {
     @NotNull
     @Min(0)

@@ -1,6 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.controller.MainController;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.ValidateException;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class FactoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    private Category getCategory(MainController.QuestionDto questionDto) {
+    private Category getCategory(QuestionDto questionDto) {
         Category category = null;
         if (questionDto.getCategoryId() != null) {
             Optional<Category> optionalCategory = this.categoryRepository.findById(questionDto.getCategoryId());
@@ -139,7 +138,7 @@ public class FactoryService {
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText) {
         MultiLang title = createMuliLang(titleDefaultText);
 
-        return new CompletionQuestion(title, 0.0, QuestionType.completion, null, false, null, new ArrayList<ValidateRule>(), null);
+        return new CompletionQuestion(title, 0.0, null, false, null, new ArrayList<ValidateRule>(), null);
     }
 
     public static CompletionQuestion createCompletionQuestion(String titleDefaultText, Category category) {
@@ -282,7 +281,7 @@ public class FactoryService {
     }
 
     // from questionDto
-    public Question createQuestionFromQuestionDto(MainController.QuestionDto questionDto) {
+    public Question createQuestionFromQuestionDto(QuestionDto questionDto) {
         Category category = getCategory(questionDto);
 
         switch (questionDto.getQuestionType()) {
@@ -294,7 +293,7 @@ public class FactoryService {
                 return createChoiceQuestion(questionDto.getTitleDefaultText(), category, questionDto.getFitRule(), questionDto.generateValidateRules(), questionDto.getSeq(), questionDto.getOptionDefaultTexts());
             case compound:
                 List<Question> questionList = new ArrayList<>();
-                for (MainController.QuestionDto item: questionDto.getQuestionDtos()) {
+                for (QuestionDto item: questionDto.getQuestionDtos()) {
                     Question question = createQuestionFromQuestionDto(item);
                     questionList.add(question);
                 }

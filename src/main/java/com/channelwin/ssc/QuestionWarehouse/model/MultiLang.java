@@ -1,6 +1,10 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import lombok.*;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -14,6 +18,7 @@ import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@TypeConstraint
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue

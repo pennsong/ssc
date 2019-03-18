@@ -1,6 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse;
 
-import com.channelwin.ssc.QuestionWarehouse.controller.MainController;
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
@@ -62,7 +61,7 @@ public class MainControllerTest {
         MultiLang multiLang = multiLangRepository.findByDefaultText("目录1").get(0);
         Integer id = multiLang.getId();
 
-        MainController.MultiLangDto multiLangDto = new MainController.MultiLangDto("PY: PY Changed", "EN: EN Changed");
+        MultiLangDto multiLangDto = new MultiLangDto("PY: PY Changed", "EN: EN Changed");
 
         mockMvc.perform(MockMvcRequestBuilders.put(multiLangBaseUrl + "/" + id)
                 .content(objectMapper.writeValueAsString(multiLangDto))
@@ -85,7 +84,7 @@ public class MainControllerTest {
     // 添加目录
     @Test
     public void addCategory() throws Exception {
-        MainController.CategoryDTO dto1 = new MainController.CategoryDTO("目录t1", 2.1);
+        CategoryDto dto1 = new CategoryDto("目录t1", 2.1);
 
         mockMvc.perform(MockMvcRequestBuilders.post(categoryBaseUrl)
                 .content(objectMapper.writeValueAsString(dto1))
@@ -123,7 +122,7 @@ public class MainControllerTest {
         Category category = categoryRepository.findByTitleDefaultText("目录1").get(0);
         int id = category.getId();
 
-        MainController.CategoryEditDTO dto = new MainController.CategoryEditDTO(99.9);
+        CategoryEditDto dto = new CategoryEditDto(99.9);
 
         mockMvc.perform(MockMvcRequestBuilders.put(categoryBaseUrl + "/{id}", id)
                 .content(objectMapper.writeValueAsString(dto))
@@ -187,7 +186,7 @@ public class MainControllerTest {
     // 添加题目
     @Test
     public void addQuestion1() throws Exception {
-        MainController.QuestionDto questionDto = new MainController.QuestionDto(
+        QuestionDto questionDto = new QuestionDto(
                 QuestionType.completion,
                 "填空题t1",
                 1.1,
@@ -230,11 +229,11 @@ public class MainControllerTest {
     @Test
     public void addQuestion2() throws Exception {
 
-        MainController.QuestionDto completionQuestion1 = new MainController.QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"一元函数1", "一元函数2"});
-        MainController.QuestionDto judgementQuestion1 = new MainController.QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, null);
-        MainController.QuestionDto choiceQuestion1 = new MainController.QuestionDto("子选择题t1",  null, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
+        QuestionDto completionQuestion1 = new QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"一元函数1", "一元函数2"});
+        QuestionDto judgementQuestion1 = new QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, null);
+        QuestionDto choiceQuestion1 = new QuestionDto("子选择题t1",  null, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
 
-        MainController.QuestionDto questionDto = new MainController.QuestionDto(
+        QuestionDto questionDto = new QuestionDto(
                 "复合题t1",
                 1.1,
                 1,
@@ -356,7 +355,7 @@ public class MainControllerTest {
         Question question = questionRepository.findByTitleDefaultText("填空题1").get(0);
         int id = question.getId();
 
-        MainController.QuestionEditDto dto = new MainController.QuestionEditDto(8.8, 3, null);
+        QuestionEditDto dto = new QuestionEditDto(8.8, 3, null);
 
         mockMvc.perform(MockMvcRequestBuilders.put(questionBaseUrl + "/{id}", id)
                 .content(objectMapper.writeValueAsString(dto))

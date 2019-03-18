@@ -1,16 +1,10 @@
 package com.channelwin.ssc.QuestionWarehouse.controller;
 
-import com.channelwin.ssc.Dto;
-import com.channelwin.ssc.Gender;
 import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
 import com.channelwin.ssc.ValidateException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,13 +15,13 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -58,12 +52,10 @@ public class MainController {
 
     // MultiLang
     @RequestMapping(path = "/multiLang/{id}", method = RequestMethod.PUT)
-    public void editMultiLang(@PathVariable int id, @RequestBody @Valid MainController.MultiLangDto dto, BindingResult bindingResult) {
+    public void editMultiLang(@PathVariable int id, @RequestBody @Valid MultiLangDto dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
-
-        dto.validate();
 
         Optional<MultiLang> optionalMultiLang = multiLangRepository.findById(id);
 
@@ -82,14 +74,12 @@ public class MainController {
     // 目录
     // 添加目录
     @RequestMapping(path = "/category", method = RequestMethod.POST)
-    public void addCategory(@RequestBody @Valid CategoryDTO dto, BindingResult bindingResult) {
+    public void addCategory(@RequestBody @Valid CategoryDto dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
 
-        dto.validate();
-
-        Category category = FactoryService.createCategory(dto.defaultText, dto.seq);
+        Category category = FactoryService.createCategory(dto.getDefaultText(), dto.getSeq());
         categoryRepository.save(category);
     }
 
@@ -101,12 +91,10 @@ public class MainController {
 
     // 编辑目录
     @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
-    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryEditDTO dto, BindingResult bindingResult) {
+    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryEditDto dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
-
-        dto.validate();
 
         Optional<Category> optionalCategory = categoryRepository.findById(id);
 
@@ -115,7 +103,7 @@ public class MainController {
         }
 
         Category category = optionalCategory.get();
-        category.setSeq(dto.seq);
+        category.setSeq(dto.getSeq());
     }
 
     // 获取单个目录
@@ -143,8 +131,6 @@ public class MainController {
             throw new ValidateException(bindingResult.toString());
         }
 
-        dto.validate();
-
         Question question = factoryService.createQuestionFromQuestionDto(dto);
         questionRepository.save(question);
     }
@@ -161,8 +147,6 @@ public class MainController {
         if (bindingResult.hasErrors()) {
             throw new ValidateException(bindingResult.toString());
         }
-
-        dto.validate();
 
         Optional<Question> optionalQuestion = questionRepository.findById(id);
 
@@ -216,196 +200,4 @@ public class MainController {
 
         return list;
     }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class CategoryDTO extends Dto {
-        @NotNull
-        String defaultText;
-
-        @NotNull
-        Double seq;
-    }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class CategoryEditDTO extends Dto {
-        @NotNull
-        Double seq;
-    }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class QuestionDto extends Dto {
-        @NotNull
-        QuestionType questionType;
-
-        @NotNull
-        String titleDefaultText;
-
-        @NotNull
-        Double seq;
-
-        Integer categoryId;
-
-        String fitRule;
-
-        String[] validateRules;
-
-        String[] optionDefaultTexts;
-
-        Integer minNum;
-
-        Integer maxNum;
-
-        QuestionDto[] questionDtos;
-
-        // 填空, 判断题
-        public QuestionDto(QuestionType questionType,
-                           String titleDefaultText,
-                           Double seq,
-                           Integer categoryId,
-                           String fitRule,
-                           String[] validateRules) {
-            this.questionType = questionType;
-            this.titleDefaultText = titleDefaultText;
-            this.seq = seq;
-            this.categoryId = categoryId;
-            this.fitRule = fitRule;
-            this.validateRules = validateRules;
-        }
-
-        // 选择题
-        public QuestionDto(String titleDefaultText,
-                           Double seq,
-                           Integer categoryId,
-                           String fitRule,
-                           String[] validateRules,
-                           String... optionDefaultTexts) {
-            this(QuestionType.choice, titleDefaultText, seq, categoryId, fitRule, validateRules);
-            this.optionDefaultTexts = optionDefaultTexts;
-        }
-
-        // 复合题
-        public QuestionDto(String titleDefaultText,
-                           Double seq,
-                           Integer categoryId,
-                           String fitRule,
-                           String[] validateRules,
-                           Integer minNum,
-                           Integer maxNum,
-                           QuestionDto... questionDtos) {
-            this(QuestionType.compound, titleDefaultText, seq, categoryId, fitRule, validateRules);
-
-            this.minNum = minNum;
-            this.maxNum = maxNum;
-
-            this.questionDtos = questionDtos;
-        }
-
-        // 子问题
-        public QuestionDto(QuestionType questionType,
-                           String titleDefaultText,
-                           double seq,
-                           String[] validateRules) {
-            this.questionType = questionType;
-            this.titleDefaultText = titleDefaultText;
-            this.seq = seq;
-            this.validateRules = validateRules;
-        }
-
-        public QuestionDto(String titleDefaultText,
-                           String[] validateRules,
-                           double seq,
-                           String... optionDefaultTexts) {
-            this(QuestionType.choice, titleDefaultText, seq, validateRules);
-            this.optionDefaultTexts = optionDefaultTexts;
-        }
-
-        public List<ValidateRule> generateValidateRules() {
-            List<ValidateRule> result = new ArrayList<>();
-            if (validateRules != null ) {
-                for (String item : validateRules) {
-                    result.add(FactoryService.createValidateRule(item));
-                }
-            }
-
-            return result;
-        }
-    }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class QuestionEditDto extends Dto {
-        @NotNull
-        Double seq;
-
-        Integer categoryId;
-
-        QuestionEditDto[] questionEditDtos;
-
-        @Override
-        public void validate() {
-            if (categoryId == null) {
-                throw new ValidateException("目录id不能为空!");
-            }
-
-            if (questionEditDtos != null) {
-                for (QuestionEditDto item : questionEditDtos) {
-                    item.subValidate();
-                }
-            }
-        }
-
-        public void subValidate() {
-            if (categoryId != null) {
-                throw new ValidateException("子问题不能有目录id!");
-            }
-        }
-    }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class MultiLangDto extends Dto {
-        @NotNull
-        Map<Lang, String> translation;
-
-        public MultiLangDto(String... translationTexts) {
-            this.translation = new HashMap<>();
-
-            for (String item: translationTexts) {
-                String[] stringArray = item.split(":");
-                this.translation.put(Lang.valueOf(stringArray[0].trim()), stringArray[1].trim());
-            }
-        }
-
-        @Override
-        public void validate() {
-            for (Map.Entry<Lang, String> item : translation.entrySet()) {
-                if (StringUtils.isEmpty(item.getValue())) {
-                    throw new ValidateException("翻译字段不能为空!");
-                }
-            }
-        }
-    }
-
-    @Data
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor
-    public static class EmployeeFixItemDto extends Dto {
-        @NotNull
-        String IDCardNum;
-
-        @NotNull
-        String name;
-
-        @NotNull
-        Gender gender;
-    }
-
 }

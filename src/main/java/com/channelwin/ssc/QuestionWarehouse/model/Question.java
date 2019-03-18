@@ -1,7 +1,12 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
@@ -11,9 +16,11 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
+@TypeConstraint
 public class Question extends Validatable {
     @Id
     @GeneratedValue
@@ -103,11 +110,5 @@ public class Question extends Validatable {
         for (ValidateRule item: validateRules) {
             item.validate();
         }
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void prePersist() throws Exception {
-        this.validate();
     }
 }

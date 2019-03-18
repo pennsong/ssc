@@ -1,5 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@TypeConstraint
 public class ChoiceQuestion extends Question {
     @ElementCollection
     @NotNull
