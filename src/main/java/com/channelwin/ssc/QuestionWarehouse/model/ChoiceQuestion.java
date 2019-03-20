@@ -1,7 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,6 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint(groups = TypeGroup.class)
 public class ChoiceQuestion extends Question {
     @ElementCollection
     @NotNull
@@ -34,8 +31,8 @@ public class ChoiceQuestion extends Question {
     }
 
     @Override
-    public void validate() {
-        super.validate();
+    public void typeValidate() {
+        super.typeValidate();
         if (options.size() < 2) {
             throw new ValidateException("选择题的选项至少要有2项!");
         }

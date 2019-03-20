@@ -1,8 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.ValidateIgnore;
 import com.channelwin.ssc.Validatable;
+import com.channelwin.ssc.ValidateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,7 +22,6 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@TypeConstraint(groups = TypeGroup.class)
 public class Question extends Validatable {
     @Id
     @GeneratedValue
@@ -58,6 +57,7 @@ public class Question extends Validatable {
 
     @ManyToOne
     @JsonIgnore
+    @ValidateIgnore
     private CompoundQuestion compoundQuestion;
 
     Question(MultiLang title, Double seq,
@@ -88,7 +88,7 @@ public class Question extends Validatable {
 
     public void setCompoundQuestion(CompoundQuestion compoundQuestion) {
         if (compoundQuestion == null) {
-            throw new RuntimeException("所属复合问题不能为空!");
+            throw new RuntimeException("设置的所属复合问题不能为空!");
         }
         this.compoundQuestion = compoundQuestion;
         this.compoundItem = true;
@@ -113,10 +113,20 @@ public class Question extends Validatable {
         }
     }
 
-//    @Override
-//    public void validate() {
-//        for (ValidateRule item : validateRules) {
-//            item.validate();
-//        }
-//    }
+    @Override
+    public void typeValidate() {
+       if (compoundItem) {
+           if (category != null) {
+               throw new ValidateException("子问题不能有所属目录!");
+           }
+
+           if (compoundQuestion == null) {
+               throw new ValidateException("所属复合问题不能为空!");
+           }
+
+           if (fitRule != null) {
+               throw new ValidateException("子问题没有单独的fitRule!");
+           }
+       }
+    }
 }

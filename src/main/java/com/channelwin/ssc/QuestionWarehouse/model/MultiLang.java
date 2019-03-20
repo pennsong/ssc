@@ -1,7 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
 import com.channelwin.ssc.Validatable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +18,6 @@ import java.util.Map;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint(groups = TypeGroup.class)
 public class MultiLang extends Validatable {
     @Id
     @GeneratedValue
@@ -48,5 +45,10 @@ public class MultiLang extends Validatable {
 
     public void setText(Lang lang, String text) {
         translation.put(lang, text);
+    }
+
+    @Override
+    public String toString() {
+        return defaultText;
     }
 }

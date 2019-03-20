@@ -1,7 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +15,6 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint(groups = TypeGroup.class)
 public class CompoundQuestion extends Question {
     @Getter
     @Setter
@@ -52,8 +49,8 @@ public class CompoundQuestion extends Question {
     }
 
     @Override
-    public void validate() {
-        super.validate();
+    public void typeValidate() {
+        super.typeValidate();
         if (maxNum < minNum) {
             throw new ValidateException("maxNum不能小于minNum!");
         }
@@ -66,7 +63,6 @@ public class CompoundQuestion extends Question {
             if (item instanceof CompoundQuestion) {
                 throw new ValidateException("子问题不能是复合题!");
             }
-            item.validate();
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
 import com.channelwin.ssc.Validatable;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
@@ -17,7 +15,6 @@ import java.util.Map;
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@TypeConstraint(groups = TypeGroup.class)
 public class MultiLangDto extends Validatable {
     @NotNull
     Map<Lang, String> translation;
@@ -32,7 +29,7 @@ public class MultiLangDto extends Validatable {
     }
 
     @Override
-    public void validate() {
+    public void typeValidate() {
         for (Map.Entry<Lang, String> item : translation.entrySet()) {
             if (StringUtils.isEmpty(item.getValue())) {
                 throw new ValidateException("翻译字段不能为空!");

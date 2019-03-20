@@ -409,7 +409,7 @@ public class MainControllerTest {
         Question question = questionRepository.findByTitleDefaultText("填空题1").get(0);
         int id = question.getId();
 
-        QuestionEditDto dto = new QuestionEditDto(8.8, 3, null);
+        QuestionEditDto dto = new QuestionEditDto(8.8, 3);
 
         mockMvc.perform(MockMvcRequestBuilders.put(questionBaseUrl + "/{id}", id)
                 .content(objectMapper.writeValueAsString(dto))

@@ -1,7 +1,6 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
-import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.ValidateIgnore;
 import com.channelwin.ssc.Validatable;
 import com.channelwin.ssc.ValidateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint(groups = TypeGroup.class)
 public class ValidateRule extends Validatable {
     public static final String[] singleCandidates = new String[]{
             "一元函数1",
@@ -55,6 +53,7 @@ public class ValidateRule extends Validatable {
 
     @Parent
     @JsonIgnore
+    @ValidateIgnore
     @Setter
     @Getter
     private Question question;
@@ -67,7 +66,7 @@ public class ValidateRule extends Validatable {
     }
 
     @Override
-    public void validate() {
+    public void typeValidate() {
         if (validateRuleType == ValidateRuleType.unknown) {
             throw new ValidateException("错误的校验函数名称!");
         }
@@ -128,5 +127,10 @@ public class ValidateRule extends Validatable {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return name + "(" + serializedValues + ")";
     }
 }
