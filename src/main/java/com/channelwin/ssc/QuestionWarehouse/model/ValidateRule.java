@@ -1,6 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.Validatable;
 import com.channelwin.ssc.ValidateException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
@@ -20,8 +22,8 @@ import java.util.stream.Collectors;
 
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint
-public class ValidateRule extends Validatable{
+@TypeConstraint(groups = TypeGroup.class)
+public class ValidateRule extends Validatable {
     public static final String[] singleCandidates = new String[]{
             "一元函数1",
             "一元函数2"

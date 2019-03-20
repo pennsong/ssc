@@ -1,6 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.Gender;
+import com.channelwin.ssc.Validatable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

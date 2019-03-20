@@ -1,6 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.Validatable;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@TypeConstraint
+@TypeConstraint(groups = TypeGroup.class)
 public class QuestionEditDto extends Validatable {
     @NotNull
     Double seq;

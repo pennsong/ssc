@@ -1,6 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.Validatable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +17,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@TypeConstraint
+@TypeConstraint(groups = TypeGroup.class)
 public class QuestionDto extends Validatable {
     @NotNull
     QuestionType questionType;
@@ -104,7 +106,7 @@ public class QuestionDto extends Validatable {
 
     public List<ValidateRule> generateValidateRules() {
         List<ValidateRule> result = new ArrayList<>();
-        if (validateRules != null ) {
+        if (validateRules != null) {
             for (String item : validateRules) {
                 result.add(FactoryService.createValidateRule(item));
             }

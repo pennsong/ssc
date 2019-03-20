@@ -22,6 +22,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,21 +59,28 @@ public class MainControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // MultiLang
+    // editMultiLang()
     @Test
-    public void editMultiLang() throws Exception {
+    public void editMultiLang_ok_添加翻译() throws Exception {
         MultiLang multiLang = multiLangRepository.findByDefaultText("目录1").get(0);
         Integer id = multiLang.getId();
 
-        MultiLangDto multiLangDto = new MultiLangDto("PY: PY Changed", "EN: EN Changed");
+        //language=JSON
+        String multiLangDto = "{\n" +
+                "  \"translation\": {\n" +
+                "    \"PY\": \"PY Changed\",\n" +
+                "    \"EN\": \"EN Changed\"\n" +
+                "  }\n" +
+                "}";
 
         mockMvc.perform(MockMvcRequestBuilders.put(multiLangBaseUrl + "/" + id)
-                .content(objectMapper.writeValueAsString(multiLangDto))
+                .content(multiLangDto)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
         multiLang = multiLangRepository.findById(id).get();
 
+        //language=JSON
         String target = "{\n" +
                 "    \"defaultText\": \"目录1\",\n" +
                 "    \"translation\": {\n" +
@@ -79,6 +90,47 @@ public class MainControllerTest {
                 "}";
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(multiLang), false);
     }
+
+    @Test
+    public void editMultiLang_err_添加翻译_错误的Lang() throws Exception {
+        MultiLang multiLang = multiLangRepository.findByDefaultText("目录1").get(0);
+        Integer id = multiLang.getId();
+
+        //language=JSON
+        String multiLangDto = "{\n" +
+                "  \"translation\": {\n" +
+                "    \"NONE_PY\": \"NONE_PY Changed\",\n" +
+                "    \"EN\": \"EN Changed\"\n" +
+                "  }\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.put(multiLangBaseUrl + "/" + id)
+                .content(multiLangDto)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest())
+        .andExpect(content().string(containsString("JSON parse error")));
+    }
+
+    @Test
+    public void editMultiLang_err_添加翻译_空翻译() throws Exception {
+        MultiLang multiLang = multiLangRepository.findByDefaultText("目录1").get(0);
+        Integer id = multiLang.getId();
+
+        //language=JSON
+        String multiLangDto = "{\n" +
+                "  \"translation\": {\n" +
+                "    \"PY\": \"PY Changed\",\n" +
+                "    \"EN\": \"\"\n" +
+                "  }\n" +
+                "}";
+
+        mockMvc.perform(MockMvcRequestBuilders.put(multiLangBaseUrl + "/" + id)
+                .content(multiLangDto)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("翻译字段不能为空")));
+    }
+    // end editMultiLang()
 
     // 目录
     // 添加目录
@@ -92,12 +144,14 @@ public class MainControllerTest {
         );
 
         Category category = categoryRepository.findByTitleDefaultText("目录t1").get(0);
+        //language=JSON
         String target = "{\n" +
                 "    \"title\": {\n" +
                 "        \"defaultText\": \"目录t1\"\n" +
                 "    },\n" +
                 "    \"seq\": 2.1\n" +
                 "}";
+
         JSONAssert.assertEquals(target, objectMapper.writeValueAsString(category), false);
     }
 
@@ -229,9 +283,9 @@ public class MainControllerTest {
     @Test
     public void addQuestion2() throws Exception {
 
-        QuestionDto completionQuestion1 = new QuestionDto(QuestionType.completion, "子填空题t1", 1.1,  new String[]{"一元函数1", "一元函数2"});
+        QuestionDto completionQuestion1 = new QuestionDto(QuestionType.completion, "子填空题t1", 1.1, new String[]{"一元函数1", "一元函数2"});
         QuestionDto judgementQuestion1 = new QuestionDto(QuestionType.judgement, "子判断题t1", 1.2, null);
-        QuestionDto choiceQuestion1 = new QuestionDto("子选择题t1",  null, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
+        QuestionDto choiceQuestion1 = new QuestionDto("子选择题t1", null, 1.3, "子选择题t1_选项1", "子选择题t1_选项2");
 
         QuestionDto questionDto = new QuestionDto(
                 "复合题t1",

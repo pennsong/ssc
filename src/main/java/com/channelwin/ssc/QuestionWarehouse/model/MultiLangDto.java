@@ -1,6 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.Validatable;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor
-@TypeConstraint
+@TypeConstraint(groups = TypeGroup.class)
 public class MultiLangDto extends Validatable {
     @NotNull
     Map<Lang, String> translation;
@@ -23,7 +25,7 @@ public class MultiLangDto extends Validatable {
     public MultiLangDto(String... translationTexts) {
         this.translation = new HashMap<>();
 
-        for (String item: translationTexts) {
+        for (String item : translationTexts) {
             String[] stringArray = item.split(":");
             this.translation.put(Lang.valueOf(stringArray[0].trim()), stringArray[1].trim());
         }

@@ -1,6 +1,7 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
 import com.channelwin.ssc.ValidateException;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@TypeConstraint
+@TypeConstraint(groups = TypeGroup.class)
 public class CompoundQuestion extends Question {
     @Getter
     @Setter

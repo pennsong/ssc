@@ -1,6 +1,8 @@
 package com.channelwin.ssc.QuestionWarehouse.model;
 
 import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeConstraint;
+import com.channelwin.ssc.QuestionWarehouse.model.validator.TypeGroup;
+import com.channelwin.ssc.Validatable;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,7 +22,7 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
-@TypeConstraint
+@TypeConstraint(groups = TypeGroup.class)
 public class Question extends Validatable {
     @Id
     @GeneratedValue
@@ -58,7 +60,13 @@ public class Question extends Validatable {
     @JsonIgnore
     private CompoundQuestion compoundQuestion;
 
-    Question(MultiLang title, Double seq, QuestionType questionType, Category category, Boolean compoundItem, String fitRule, List<ValidateRule> validateRules, CompoundQuestion compoundQuestion) {
+    Question(MultiLang title, Double seq,
+             QuestionType questionType,
+             Category category,
+             Boolean compoundItem,
+             String fitRule,
+             List<ValidateRule> validateRules,
+             CompoundQuestion compoundQuestion) {
         this.title = title;
         this.seq = seq;
         this.questionType = questionType;
@@ -69,7 +77,7 @@ public class Question extends Validatable {
         this.validateRules = new ArrayList<>();
 
         if (validateRules != null) {
-            for (ValidateRule item: validateRules) {
+            for (ValidateRule item : validateRules) {
                 item.setQuestion(this);
                 this.validateRules.add(item);
             }
@@ -99,16 +107,16 @@ public class Question extends Validatable {
     }
 
     public void addValidateRules(List<ValidateRule> validateRules) {
-        for (ValidateRule item: validateRules) {
+        for (ValidateRule item : validateRules) {
             item.setQuestion(this);
             this.validateRules.add(item);
         }
     }
 
-    @Override
-    public void validate() {
-        for (ValidateRule item: validateRules) {
-            item.validate();
-        }
-    }
+//    @Override
+//    public void validate() {
+//        for (ValidateRule item : validateRules) {
+//            item.validate();
+//        }
+//    }
 }

@@ -15,10 +15,8 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,11 +50,7 @@ public class MainController {
 
     // MultiLang
     @RequestMapping(path = "/multiLang/{id}", method = RequestMethod.PUT)
-    public void editMultiLang(@PathVariable int id, @RequestBody @Valid MultiLangDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.toString());
-        }
-
+    public void editMultiLang(@PathVariable int id, @RequestBody MultiLangDto dto) {
         Optional<MultiLang> optionalMultiLang = multiLangRepository.findById(id);
 
         if (optionalMultiLang.isPresent() == false) {
@@ -68,18 +62,17 @@ public class MainController {
         for (Map.Entry<Lang, String> item : dto.getTranslation().entrySet()) {
             multiLang.setText(item.getKey(), item.getValue());
         }
+
+        multiLang.validate();
     }
 
 
     // 目录
     // 添加目录
     @RequestMapping(path = "/category", method = RequestMethod.POST)
-    public void addCategory(@RequestBody @Valid CategoryDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.toString());
-        }
-
+    public void addCategory(@RequestBody CategoryDto dto) {
         Category category = FactoryService.createCategory(dto.getDefaultText(), dto.getSeq());
+        category.validate();
         categoryRepository.save(category);
     }
 
@@ -91,11 +84,7 @@ public class MainController {
 
     // 编辑目录
     @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
-    public void editCategory(@PathVariable int id, @RequestBody @Valid CategoryEditDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.toString());
-        }
-
+    public void editCategory(@PathVariable int id, @RequestBody CategoryEditDto dto) {
         Optional<Category> optionalCategory = categoryRepository.findById(id);
 
         if (optionalCategory.isPresent() == false) {
@@ -104,6 +93,7 @@ public class MainController {
 
         Category category = optionalCategory.get();
         category.setSeq(dto.getSeq());
+        category.validate();
     }
 
     // 获取单个目录
@@ -126,12 +116,9 @@ public class MainController {
     // 题目
     // 添加题目
     @RequestMapping(path = "/question", method = RequestMethod.POST)
-    public void addQuestion(@Valid @RequestBody QuestionDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.toString());
-        }
-
+    public void addQuestion(@RequestBody QuestionDto dto) {
         Question question = factoryService.createQuestionFromQuestionDto(dto);
+        question.validate();
         questionRepository.save(question);
     }
 
@@ -143,11 +130,7 @@ public class MainController {
 
     // 编辑题目
     @RequestMapping(path = "/question/{id}", method = RequestMethod.PUT)
-    public void editQuestion(@PathVariable int id, @Valid @RequestBody QuestionEditDto dto, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            throw new ValidateException(bindingResult.toString());
-        }
-
+    public void editQuestion(@PathVariable int id, @RequestBody QuestionEditDto dto) {
         Optional<Question> optionalQuestion = questionRepository.findById(id);
 
         if (optionalQuestion.isPresent() == false) {
@@ -167,6 +150,8 @@ public class MainController {
         Category category = optionalCategory.get();
 
         question.setCategory(category);
+
+        question.validate();
     }
 
     // 获取单个题目
