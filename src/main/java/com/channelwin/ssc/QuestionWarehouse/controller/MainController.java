@@ -4,6 +4,7 @@ import com.channelwin.ssc.QuestionWarehouse.model.*;
 import com.channelwin.ssc.QuestionWarehouse.repository.CategoryRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.MultiLangRepository;
 import com.channelwin.ssc.QuestionWarehouse.repository.QuestionRepository;
+import com.channelwin.ssc.Util;
 import com.channelwin.ssc.ValidateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,13 +52,7 @@ public class MainController {
     // MultiLang
     @RequestMapping(path = "/multiLang/{id}", method = RequestMethod.PUT)
     public void editMultiLang(@PathVariable int id, @RequestBody MultiLangDto dto) {
-        Optional<MultiLang> optionalMultiLang = multiLangRepository.findById(id);
-
-        if (optionalMultiLang.isPresent() == false) {
-            throw new ValidateException("没有对应此id的多语言!");
-        }
-
-        MultiLang multiLang = optionalMultiLang.get();
+        MultiLang multiLang = Util.getRecordWithExistCheck(id, multiLangRepository);
 
         for (Map.Entry<Lang, String> item : dto.getTranslation().entrySet()) {
             multiLang.setText(item.getKey(), item.getValue());
@@ -65,7 +60,6 @@ public class MainController {
 
         multiLang.validate();
     }
-
 
     // 目录
     // 添加目录
@@ -85,13 +79,8 @@ public class MainController {
     // 编辑目录
     @RequestMapping(path = "/category/{id}", method = RequestMethod.PUT)
     public void editCategory(@PathVariable int id, @RequestBody CategoryEditDto dto) {
-        Optional<Category> optionalCategory = categoryRepository.findById(id);
+        Category category = Util.getRecordWithExistCheck(id, categoryRepository);
 
-        if (optionalCategory.isPresent() == false) {
-            throw new ValidateException("没有对应此id的目录!");
-        }
-
-        Category category = optionalCategory.get();
         category.setSeq(dto.getSeq());
         category.validate();
     }
@@ -131,13 +120,7 @@ public class MainController {
     // 编辑题目
     @RequestMapping(path = "/question/{id}", method = RequestMethod.PUT)
     public void editQuestion(@PathVariable int id, @RequestBody QuestionEditDto dto) {
-        Optional<Question> optionalQuestion = questionRepository.findById(id);
-
-        if (optionalQuestion.isPresent() == false) {
-            throw new ValidateException("没有对应此id的问题!");
-        }
-
-        Question question = optionalQuestion.get();
+        Question question = Util.getRecordWithExistCheck(id, questionRepository);
 
         question.setSeq(dto.getSeq());
 
